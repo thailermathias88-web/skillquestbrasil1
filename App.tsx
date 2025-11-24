@@ -1787,6 +1787,11 @@ const App: React.FC = () => {
                     // Restore Analysis Result if exists
                     if (profile.analysis_result) {
                         setAnalysisResult(profile.analysis_result);
+                        setScreen(Screen.DASHBOARD); // Go to Dashboard if analysis exists
+                    } else {
+                        // If user exists but no analysis, go to Dashboard (Empty State) or Onboarding
+                        // Let's go to Dashboard so they see the "Welcome Back" empty state
+                        setScreen(Screen.DASHBOARD);
                     }
 
                     // Restore DISC Result if exists
@@ -1799,6 +1804,8 @@ const App: React.FC = () => {
                         ...prev,
                         email: session.user.email || ''
                     }));
+                    // New user from Google Login (no profile yet) -> Go to Onboarding/Dashboard
+                    setScreen(Screen.DASHBOARD);
                 }
             }
         } catch (error) {
@@ -1808,6 +1815,26 @@ const App: React.FC = () => {
 
     useEffect(() => {
         checkSession();
+
+        // Listen for auth changes (e.g. Google Login redirect)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN') {
+                checkSession();
+            } else if (event === 'SIGNED_OUT') {
+                setScreen(Screen.LANDING);
+                setUserProfile({
+                    role: '',
+                    experience: '',
+                    cvFile: null,
+                    cvBase64: null,
+                    cvMimeType: null
+                });
+                setAnalysisResult(null);
+                setDiscResult(null);
+            }
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
     const handleAnalyze = async (data: any) => {
