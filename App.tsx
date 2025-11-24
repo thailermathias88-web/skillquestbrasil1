@@ -1782,8 +1782,17 @@ const App: React.FC = () => {
                         experience: profile.experience || prev.experience,
                         city: profile.city || prev.city,
                         whatsapp: profile.whatsapp || prev.whatsapp,
-                        // Load other fields if necessary
                     }));
+
+                    // Restore Analysis Result if exists
+                    if (profile.analysis_result) {
+                        setAnalysisResult(profile.analysis_result);
+                    }
+
+                    // Restore DISC Result if exists
+                    if (profile.disc_result) {
+                        setDiscResult(profile.disc_result);
+                    }
                 } else if (session.user.email) {
                     // Fallback if profile doesn't exist yet but user is logged in
                     setUserProfile(prev => ({
@@ -1838,9 +1847,31 @@ const App: React.FC = () => {
             setUserProfile(completeProfile);
 
             // Save complete profile to Supabase
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                await saveUserProfile(completeProfile, user.id);
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                // We use update here because the profile should already exist (created by trigger)
+                // But we use upsert just in case to be safe, or we can use update if we are sure
+                // Let's use upsert with the new fields
+                const { error } = await supabase
+                    .from('user_profiles')
+                    .update({
+                        role: data.role,
+                        experience: data.experience,
+                        city: data.city,
+                        whatsapp: data.whatsapp,
+                        cv_url: base64 ? `data:${mimeType};base64,${base64}` : null,
+                        cv_mime_type: mimeType,
+                        quiz_data: quizData,
+                        name: result.extractedName || userProfile.name,
+                        analysis_result: result, // Save the full analysis result
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('user_id', session.user.id);
+
+                if (error) {
+                    console.error('Error saving profile:', error);
+                    // Don't block the user if save fails, but log it
+                }
             }
 
             setScreen(Screen.DASHBOARD);
@@ -1962,9 +1993,21 @@ const App: React.FC = () => {
             {showDiscModal && (
                 <DiscTestModal
                     onClose={() => setShowDiscModal(false)}
-                    onComplete={(res) => {
+                    onComplete={async (res) => {
                         setDiscResult(res);
                         setShowDiscModal(false);
+
+                        // Save DISC result to Supabase
+                        const { data: { session } } = await supabase.auth.getSession();
+                        if (session?.user) {
+                            await supabase
+                                .from('user_profiles')
+                                .update({
+                                    disc_result: res,
+                                    updated_at: new Date().toISOString()
+                                })
+                                .eq('user_id', session.user.id);
+                        }
                     }}
                 />
             )}
