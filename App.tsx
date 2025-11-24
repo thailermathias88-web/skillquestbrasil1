@@ -372,20 +372,8 @@ const RegisterScreen: React.FC<{ onRegister: () => void }> = ({ onRegister }) =>
 
             if (authError) throw authError;
 
-            if (authData.user) {
-                // Save basic profile to database
-                const basicProfile: UserProfile = {
-                    name: form.name,
-                    email: form.email,
-                    role: '',
-                    experience: '',
-                    cvFile: null,
-                    cvBase64: null,
-                    cvMimeType: null
-                };
-
-                await saveUserProfile(basicProfile, authData.user.id);
-            }
+            // Profile is now created automatically by Supabase Trigger
+            // No need to call saveUserProfile manually here
 
             setLoading(false);
             onRegister();
