@@ -4,6 +4,9 @@ import { Logo } from './components/Logo';
 import { analyzeCandidateProfile, generateDiscFeedback, generateSkillGapAnalysis, getSalaryData, getInterviewPrep } from './services/geminiService';
 import { DiscTestModal } from './components/DiscTestModal';
 import { PremiumModal } from './components/PremiumModal';
+import { AdminPanel } from './components/AdminPanel';
+import { saveUserProfile } from './services/adminService';
+import { supabase } from './services/supabase';
 import {
     Home, Briefcase, GraduationCap, MessageSquare, User,
     ArrowRight, Upload, FileText, Check, Lock, ChevronRight,
@@ -18,7 +21,7 @@ import {
 // --- TYPES FOR UI STATE ---
 enum Screen {
     LANDING = 'LANDING',
-    REGISTER = 'REGISTER', // Added for Backend Simulation
+    REGISTER = 'REGISTER',
     AUTH = 'AUTH',
     ONBOARDING = 'ONBOARDING',
     DASHBOARD = 'DASHBOARD',
@@ -29,7 +32,8 @@ enum Screen {
     SALARY = 'SALARY',
     MENTORSHIP = 'MENTORSHIP',
     PROFILE = 'PROFILE',
-    DISC_RESULT = 'DISC_RESULT'
+    DISC_RESULT = 'DISC_RESULT',
+    ADMIN = 'ADMIN'
 }
 
 // --- SHARED COMPONENTS ---
@@ -228,14 +232,46 @@ const RegisterScreen: React.FC<{ onRegister: () => void }> = ({ onRegister }) =>
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({ name: '', email: '', password: '' });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        // Simulate backend call
-        setTimeout(() => {
+
+        try {
+            // Create user in Supabase Auth
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: form.email,
+                password: form.password,
+                options: {
+                    data: {
+                        name: form.name
+                    }
+                }
+            });
+
+            if (authError) throw authError;
+
+            if (authData.user) {
+                // Save basic profile to database
+                const basicProfile: UserProfile = {
+                    name: form.name,
+                    email: form.email,
+                    role: '',
+                    experience: '',
+                    cvFile: null,
+                    cvBase64: null,
+                    cvMimeType: null
+                };
+
+                await saveUserProfile(basicProfile, authData.user.id);
+            }
+
             setLoading(false);
             onRegister();
-        }, 1500);
+        } catch (error: any) {
+            console.error('Registration error:', error);
+            alert(error.message || 'Erro ao criar conta. Tente novamente.');
+            setLoading(false);
+        }
     };
 
     return (
@@ -1392,8 +1428,9 @@ const DashboardScreen: React.FC<{
     onSkillClick: (skill: Skill) => void,
     discResult: DiscResult | null,
     onStartDisc: () => void,
-    onViewDisc: () => void
-}> = ({ result, onNavigate, onSkillClick, discResult, onStartDisc, onViewDisc }) => {
+    onViewDisc: () => void,
+    userProfile: UserProfile
+}> = ({ result, onNavigate, onSkillClick, discResult, onStartDisc, onViewDisc, userProfile }) => {
     if (!result) return null;
 
     return (
@@ -1405,8 +1442,18 @@ const DashboardScreen: React.FC<{
                         <p className="text-slate-400 text-sm font-medium">Olá, {result.extractedName?.split(' ')[0] || 'Candidato'}</p>
                         <h1 className="text-2xl font-bold text-slate-900">Seu Diagnóstico</h1>
                     </div>
-                    <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-slate-600" />
+                    <div className="flex gap-3">
+                        {userProfile.email === 'thailer.mathias88@gmail.com' && (
+                            <button
+                                onClick={() => onNavigate(Screen.ADMIN)}
+                                className="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-slate-800 transition-colors"
+                            >
+                                <Lock className="w-4 h-4" />
+                            </button>
+                        )}
+                        <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-slate-600" />
+                        </div>
                     </div>
                 </div>
 
@@ -1590,21 +1637,32 @@ const App: React.FC = () => {
                 mimeType
             );
 
-            setAnalysisResult(result);
-            setUserProfile({
+            const completeProfile: UserProfile = {
                 ...userProfile,
                 role: data.role,
                 experience: data.experience,
+                city: data.city,
+                whatsapp: data.whatsapp,
                 cvFile: data.file,
                 cvBase64: base64,
                 cvMimeType: mimeType,
                 quizData,
-                name: result.extractedName
-            });
+                name: result.extractedName || userProfile.name
+            };
+
+            setAnalysisResult(result);
+            setUserProfile(completeProfile);
+
+            // Save complete profile to Supabase
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await saveUserProfile(completeProfile, user.id);
+            }
+
             setScreen(Screen.DASHBOARD);
         } catch (error) {
-            console.error(error);
-            alert("Erro ao analisar CV. Tente novamente.");
+            console.error('Analysis error:', error);
+            alert('Erro ao analisar perfil. Tente novamente.');
         } finally {
             setIsLoading(false);
         }
@@ -1642,6 +1700,7 @@ const App: React.FC = () => {
                         discResult={discResult}
                         onStartDisc={() => setShowDiscModal(true)}
                         onViewDisc={() => handleNavigate(Screen.DISC_RESULT)}
+                        userProfile={userProfile}
                     />
                     <BottomNav current={Screen.DASHBOARD} onNavigate={handleNavigate} />
                 </>
@@ -1688,6 +1747,10 @@ const App: React.FC = () => {
                     userProfile={userProfile}
                     onBack={() => handleNavigate(Screen.SERVICES)}
                 />
+            )}
+
+            {currentScreen === Screen.ADMIN && (
+                <AdminPanel onBack={() => handleNavigate(Screen.DASHBOARD)} />
             )}
 
             {/* Modals */}

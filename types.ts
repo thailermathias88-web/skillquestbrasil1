@@ -91,7 +91,7 @@ export interface InterviewPrepData {
   type?: 'qa' | 'case-study'; // Discriminator
   questions?: QuestionData[];
   caseStudies?: CaseStudyData[]; // Changed to array for multiple cases
-  dressCode?: DressCodeData; 
+  dressCode?: DressCodeData;
 }
 
 export interface LinkedinData {
@@ -113,9 +113,9 @@ export interface SalaryData {
   marketDemand: 'Baixa' | 'Média' | 'Alta';
   regionalData: RegionalSalary[];
   negotiationStrategy: {
-      mainArgument: string;
-      secondaryArgument: string;
-      closingPhrase: string;
+    mainArgument: string;
+    secondaryArgument: string;
+    closingPhrase: string;
   };
 }
 
@@ -123,8 +123,8 @@ export interface SoftSkillTask {
   day: string;
   title: string;
   action: string;
-  whyItMatters: string; 
-  toolOrTip: string;   
+  whyItMatters: string;
+  toolOrTip: string;
   readingRecommendation: string;
   estimatedTime: string;
   reflectionQuestion: string;
@@ -141,7 +141,7 @@ export interface AnalysisResult {
   matchScore: number;
   skills: Skill[];
   roadmap: RoadmapStep[];
-  
+
   extractedName?: string;
   extractedLastRole?: string;
 
@@ -149,7 +149,7 @@ export interface AnalysisResult {
   salaryData?: SalaryData;
   softSkillPlan?: SoftSkillTask[];
   interviewPrep?: InterviewPrepData;
-  
+
   extractedCvData?: ExtractedCvData;
   fullAnalysis?: DiscAnalysisDetails;
 }
@@ -175,4 +175,20 @@ export enum AppView {
   ONBOARDING = 'ONBOARDING',
   DASHBOARD = 'DASHBOARD',
   PREMIUM_AREA = 'PREMIUM_AREA'
+}
+
+// --- ADMIN PANEL TYPES ---
+export interface AdminUserData {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  whatsapp: string;
+  role: string;
+  experience: string;
+  city: string;
+  cvUrl: string;
+  cvMimeType: string;
+  quizData?: QuizData;
+  createdAt: string;
 }
