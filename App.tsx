@@ -1005,6 +1005,17 @@ const LandingScreen: React.FC<{ onStart: () => void }> = ({ onStart }) => {
                                 Treine com perguntas reais (técnicas e comportamentais). Receba feedback e sugestões de Dress Code para impressionar.
                             </p>
                         </div>
+
+                        {/* Card 6: Raio-X Salário */}
+                        <div className="bg-white p-8 rounded-[32px] shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 md:col-span-2 lg:col-span-1">
+                            <div className="w-14 h-14 bg-[#fef3c7] rounded-2xl flex items-center justify-center text-[#d97706] mb-6">
+                                <DollarSign className="w-7 h-7" />
+                            </div>
+                            <h3 className="text-xl font-bold text-[#0f172a] mb-3">Raio-X Salário</h3>
+                            <p className="text-slate-500 leading-relaxed text-sm">
+                                Descubra faixas salariais por nível (Júnior, Pleno, Sênior) e regiões do Brasil. Negocie com dados reais do mercado.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>
