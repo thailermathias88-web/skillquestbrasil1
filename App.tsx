@@ -1541,7 +1541,43 @@ const DashboardScreen: React.FC<{
     onViewDisc: () => void,
     userProfile: UserProfile
 }> = ({ result, onNavigate, onSkillClick, discResult, onStartDisc, onViewDisc, userProfile }) => {
-    if (!result) return null;
+    // Se não houver resultado de análise, mostrar tela de boas-vindas/início
+    if (!result) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 relative">
+                {/* Admin Button for Empty State */}
+                {userProfile.email === 'thailer.mathias88@gmail.com' && (
+                    <div className="absolute top-6 right-6">
+                        <button
+                            onClick={() => onNavigate(Screen.ADMIN)}
+                            className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-full shadow-lg hover:bg-slate-800 transition-colors text-sm font-bold"
+                        >
+                            <Lock className="w-4 h-4" />
+                            Painel Admin
+                        </button>
+                    </div>
+                )}
+
+                <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center">
+                    <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <User className="w-10 h-10 text-emerald-600" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Bem-vindo de volta!</h2>
+                    <p className="text-slate-500 mb-8">
+                        Para ver seu dashboard personalizado, precisamos analisar seu perfil atualizado.
+                    </p>
+
+                    <button
+                        onClick={() => onNavigate(Screen.ONBOARDING)}
+                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200 transition-all flex items-center justify-center gap-2"
+                    >
+                        <FileText className="w-5 h-5" />
+                        Fazer Nova Análise
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 pb-24">
