@@ -1727,6 +1727,44 @@ const App: React.FC = () => {
     const [showDiscModal, setShowDiscModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    const checkSession = async () => {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                const { data: profile } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .single();
+
+                if (profile) {
+                    setUserProfile(prev => ({
+                        ...prev,
+                        name: profile.name || prev.name,
+                        email: profile.email || session.user.email || '',
+                        role: profile.role || prev.role,
+                        experience: profile.experience || prev.experience,
+                        city: profile.city || prev.city,
+                        whatsapp: profile.whatsapp || prev.whatsapp,
+                        // Load other fields if necessary
+                    }));
+                } else if (session.user.email) {
+                    // Fallback if profile doesn't exist yet but user is logged in
+                    setUserProfile(prev => ({
+                        ...prev,
+                        email: session.user.email || ''
+                    }));
+                }
+            }
+        } catch (error) {
+            console.error('Error checking session:', error);
+        }
+    };
+
+    useEffect(() => {
+        checkSession();
+    }, []);
+
     const handleAnalyze = async (data: any) => {
         setIsLoading(true);
         try {
@@ -1798,7 +1836,10 @@ const App: React.FC = () => {
 
             {currentScreen === Screen.AUTH && (
                 <AuthScreen
-                    onLoginSuccess={() => setScreen(Screen.DASHBOARD)}
+                    onLoginSuccess={() => {
+                        checkSession();
+                        setScreen(Screen.DASHBOARD);
+                    }}
                     onRegisterClick={() => setScreen(Screen.REGISTER)}
                 />
             )}
