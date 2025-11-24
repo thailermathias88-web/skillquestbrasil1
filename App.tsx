@@ -1849,12 +1849,12 @@ const App: React.FC = () => {
             // Save complete profile to Supabase
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
-                // We use update here because the profile should already exist (created by trigger)
-                // But we use upsert just in case to be safe, or we can use update if we are sure
-                // Let's use upsert with the new fields
+                // We use upsert to handle both new users (who have profile via trigger)
+                // and old users (who might not have a profile yet)
                 const { error } = await supabase
                     .from('user_profiles')
-                    .update({
+                    .upsert({
+                        user_id: session.user.id, // Required for upsert to know which row
                         role: data.role,
                         experience: data.experience,
                         city: data.city,
@@ -1863,10 +1863,9 @@ const App: React.FC = () => {
                         cv_mime_type: mimeType,
                         quiz_data: quizData,
                         name: result.extractedName || userProfile.name,
-                        analysis_result: result, // Save the full analysis result
+                        analysis_result: result,
                         updated_at: new Date().toISOString()
-                    })
-                    .eq('user_id', session.user.id);
+                    }, { onConflict: 'user_id' });
 
                 if (error) {
                     console.error('Error saving profile:', error);
@@ -2002,11 +2001,11 @@ const App: React.FC = () => {
                         if (session?.user) {
                             await supabase
                                 .from('user_profiles')
-                                .update({
+                                .upsert({
+                                    user_id: session.user.id,
                                     disc_result: res,
                                     updated_at: new Date().toISOString()
-                                })
-                                .eq('user_id', session.user.id);
+                                }, { onConflict: 'user_id' });
                         }
                     }}
                 />
