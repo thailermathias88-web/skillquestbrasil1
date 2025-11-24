@@ -14,7 +14,6 @@ import {
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid
 } from 'recharts';
-import { SupabaseStatus } from './components/SupabaseStatus';
 
 // --- TYPES FOR UI STATE ---
 enum Screen {
@@ -1620,7 +1619,6 @@ const App: React.FC = () => {
 
     return (
         <div className="font-sans text-slate-900 bg-slate-50 min-h-screen">
-            <SupabaseStatus />
             {isLoading && <LoadingOverlay />}
 
             {currentScreen === Screen.LANDING && (
