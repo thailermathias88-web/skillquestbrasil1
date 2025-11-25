@@ -6,6 +6,8 @@ import { DiscTestModal } from './components/DiscTestModal';
 import { PremiumModal } from './components/PremiumModal';
 import { AdminPanel } from './components/AdminPanel';
 import { ProfileScreen } from './components/ProfileScreen';
+import { InterviewSimulator } from './components/InterviewSimulator';
+import CvOptimizer from './components/CvOptimizer';
 import { saveUserProfile } from './services/adminService';
 import { supabase } from './services/supabase';
 import {
@@ -34,7 +36,8 @@ enum Screen {
     MENTORSHIP = 'MENTORSHIP',
     PROFILE = 'PROFILE',
     DISC_RESULT = 'DISC_RESULT',
-    ADMIN = 'ADMIN'
+    ADMIN = 'ADMIN',
+    SIMULATOR = 'SIMULATOR'
 }
 
 // --- SHARED COMPONENTS ---
@@ -1252,6 +1255,16 @@ const ServicesScreen: React.FC<{
             locked: !isPremium,
             tag: 'PREMIUM'
         },
+        {
+            id: Screen.SIMULATOR,
+            title: 'Simulador de Entrevista',
+            icon: Mic,
+            color: 'text-white',
+            bg: 'bg-gradient-to-br from-emerald-500 to-teal-600',
+            desc: 'Treine com perguntas reais e receba feedback imediato da IA.',
+            locked: !isPremium,
+            tag: 'NOVO'
+        },
     ];
 
     const handleServiceClick = (s: any) => {
@@ -2015,6 +2028,17 @@ const App: React.FC = () => {
                     userProfile={userProfile}
                     onBack={() => handleNavigate(Screen.SERVICES)}
                 />
+            )}
+
+            {currentScreen === Screen.SIMULATOR && (
+                <InterviewSimulator
+                    userProfile={userProfile}
+                    onBack={() => handleNavigate(Screen.SERVICES)}
+                />
+            )}
+
+            {currentScreen === Screen.CV_OPTIMIZER && (
+                <CvOptimizer onBack={() => handleNavigate(Screen.SERVICES)} />
             )}
 
             {currentScreen === Screen.ADMIN && (

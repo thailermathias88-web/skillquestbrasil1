@@ -614,3 +614,60 @@ export const optimizeCVContent = async (
     };
   }
 };
+
+export const generateInterviewQuestion = async (role: string, topic: string): Promise<{ question: string }> => {
+  const model = "gemini-2.5-flash";
+  const prompt = `
+    You are an expert technical interviewer for the role of "${role}".
+    Topic: "${topic}".
+
+    Generate a single, challenging, but fair interview question.
+    It should be conversational, as if spoken in a real interview.
+    Keep it under 30 words.
+    Language: PT-BR.
+
+    Return JSON: { "question": "The question text" }
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: { text: prompt },
+      config: { responseMimeType: "application/json" }
+    });
+    return JSON.parse(response.text || '{"question": "Conte-me sobre você."}');
+  } catch (e) {
+    console.error(e);
+    return { question: "Poderia me falar um pouco sobre sua experiência profissional?" };
+  }
+};
+
+export const evaluateInterviewAnswer = async (question: string, answer: string): Promise<{ score: number, feedback: string, improvement: string }> => {
+  const model = "gemini-2.5-flash";
+  const prompt = `
+    You are an expert interview coach.
+    Question: "${question}"
+    Candidate Answer (Spoken): "${answer}"
+
+    Evaluate the answer based on clarity, relevance, and confidence.
+    
+    Return JSON (PT-BR):
+    {
+      "score": 0-10,
+      "feedback": "One sentence on what was good.",
+      "improvement": "One specific tip to improve this answer."
+    }
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: { text: prompt },
+      config: { responseMimeType: "application/json" }
+    });
+    return JSON.parse(response.text || '{"score": 0, "feedback": "Erro ao avaliar.", "improvement": "Tente novamente."}');
+  } catch (e) {
+    console.error(e);
+    return { score: 0, feedback: "Não foi possível avaliar sua resposta.", improvement: "Verifique sua conexão e tente novamente." };
+  }
+};
