@@ -212,12 +212,12 @@ export interface CVOptimizationResult {
 
 // --- SOFT SKILLS GAMIFICATION TYPES ---
 export interface SoftSkillsProgress {
-  level: number; // Nível do usuário (1-5)
-  currentDay: number; // Dia atual (1-30)
-  completedDays: number[]; // Dias já completados
-  badges: string[]; // Badges conquistados
-  lastCompletedDate: string | null; // ISO Date do último dia completado
-  experience: number; // XP acumulado
+  currentDay: number;           // 1-30
+  completedDays: number[];      // [1, 2, 3, ...]
+  lastCompletedAt: string | null; // ISO timestamp
+  totalXP: number;
+  level: number;
+  streak: number;
 }
 
 export interface DailyTask {

@@ -1,227 +1,163 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, Sparkles } from 'lucide-react';
+import React from 'react';
+import { ChevronLeft, Target, BookOpen, Lightbulb, MessageSquare, Zap, Trophy } from 'lucide-react';
+import { SlideToUnlock } from './SlideToUnlock';
 
 interface SoftSkillsIntroScreenProps {
     onStart: () => void;
     onBack: () => void;
+    userLevel: number;
+    userXP: number;
+    streak: number;
 }
 
-export const SoftSkillsIntroScreen: React.FC<SoftSkillsIntroScreenProps> = ({ onStart, onBack }) => {
-    const [swipeProgress, setSwipeProgress] = useState(0);
-    const [isDragging, setIsDragging] = useState(false);
-    const buttonRef = useRef<HTMLDivElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    const handleTouchStart = () => {
-        setIsDragging(true);
-    };
-
-    const handleTouchMove = (e: React.TouchEvent) => {
-        if (!isDragging || !containerRef.current || !buttonRef.current) return;
-
-        const touch = e.touches[0];
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const buttonWidth = buttonRef.current.offsetWidth;
-        const maxDistance = containerRect.width - buttonWidth - 8;
-
-        const relativeX = touch.clientX - containerRect.left - buttonWidth / 2;
-        const progress = Math.max(0, Math.min(relativeX / maxDistance, 1));
-
-        setSwipeProgress(progress);
-
-        if (progress >= 0.95) {
-            onStart();
+export const SoftSkillsIntroScreen: React.FC<SoftSkillsIntroScreenProps> = ({
+    onStart,
+    onBack,
+    userLevel,
+    userXP,
+    streak
+}) => {
+    const features = [
+        {
+            icon: Target,
+            title: 'A Tarefa',
+            description: 'Uma ação prática e concreta para executar hoje',
+            color: 'from-blue-500 to-cyan-500',
+            iconBg: 'bg-blue-100',
+            iconColor: 'text-blue-600'
+        },
+        {
+            icon: Lightbulb,
+            title: 'Por Que Importa',
+            description: 'Contexto e relevância da habilidade para sua carreira',
+            color: 'from-amber-500 to-orange-500',
+            iconBg: 'bg-amber-100',
+            iconColor: 'text-amber-600'
+        },
+        {
+            icon: BookOpen,
+            title: 'Leitura Recomendada',
+            description: 'Material de referência para aprofundar o conhecimento',
+            color: 'from-purple-500 to-indigo-500',
+            iconBg: 'bg-purple-100',
+            iconColor: 'text-purple-600'
+        },
+        {
+            icon: MessageSquare,
+            title: 'Reflexão Diária',
+            description: 'Pergunta para autoanálise e crescimento pessoal',
+            color: 'from-pink-500 to-rose-500',
+            iconBg: 'bg-pink-100',
+            iconColor: 'text-pink-600'
         }
-    };
-
-    const handleTouchEnd = () => {
-        setIsDragging(false);
-        if (swipeProgress < 0.95) {
-            setSwipeProgress(0);
-        }
-    };
-
-    const handleMouseDown = () => {
-        setIsDragging(true);
-    };
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!isDragging || !containerRef.current || !buttonRef.current) return;
-
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const buttonWidth = buttonRef.current.offsetWidth;
-        const maxDistance = containerRect.width - buttonWidth - 8;
-
-        const relativeX = e.clientX - containerRect.left - buttonWidth / 2;
-        const progress = Math.max(0, Math.min(relativeX / maxDistance, 1));
-
-        setSwipeProgress(progress);
-
-        if (progress >= 0.95) {
-            onStart();
-        }
-    };
-
-    const handleMouseUp = () => {
-        setIsDragging(false);
-        if (swipeProgress < 0.95) {
-            setSwipeProgress(0);
-        }
-    };
-
-    useEffect(() => {
-        if (isDragging) {
-            window.addEventListener('mouseup', handleMouseUp);
-            return () => window.removeEventListener('mouseup', handleMouseUp);
-        }
-    }, [isDragging]);
+    ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 font-sans relative overflow-hidden flex flex-col">
-            {/* Background Effects */}
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.15),transparent_50%)]"></div>
-            <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(251,146,60,0.15),transparent_50%)]"></div>
-
+        <div className="min-h-screen bg-gradient-to-b from-pink-50 via-purple-50 to-white pb-32">
             {/* Header */}
-            <div className="relative z-10 pt-6 px-5 pb-4">
-                <button onClick={onBack} className="text-slate-400 text-xs hover:text-white transition-colors mb-4">← Voltar</button>
+            <div className="bg-gradient-to-br from-pink-600 via-purple-600 to-indigo-600 text-white p-6 pb-20 rounded-b-[3rem] shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-16 -mb-16 blur-2xl" />
 
-                <div className="text-center mb-6">
-                    <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-4">
-                        <Sparkles className="w-4 h-4 text-yellow-400" />
-                        <span className="text-white text-xs font-bold">JORNADA PREMIUM</span>
+                <div className="relative z-10">
+                    <button
+                        onClick={onBack}
+                        className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors backdrop-blur-sm mb-4"
+                    >
+                        <ChevronLeft className="w-6 h-6" />
+                    </button>
+
+                    <div className="text-center mt-4">
+                        <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                            <Trophy className="w-10 h-10 text-yellow-300" />
+                        </div>
+                        <h1 className="text-3xl font-extrabold mb-2">Desafio 30 Dias</h1>
+                        <p className="text-purple-100 text-sm">Coaching Comportamental Gamificado</p>
                     </div>
+                </div>
+            </div>
 
-                    <h1 className="text-2xl font-black text-white mb-2 tracking-tight leading-tight">
-                        Transforme Sua<br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-orange-400">Carreira em 30 Dias</span>
-                    </h1>
+            {/* Stats Cards */}
+            <div className="px-6 -mt-12 mb-6 relative z-20">
+                <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-white rounded-2xl p-4 shadow-lg border border-purple-100 text-center">
+                        <Zap className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+                        <p className="text-2xl font-bold text-slate-900">Nv.{userLevel}</p>
+                        <p className="text-xs text-slate-500">Nível</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-4 shadow-lg border border-purple-100 text-center">
+                        <Trophy className="w-6 h-6 text-amber-600 mx-auto mb-2" />
+                        <p className="text-2xl font-bold text-slate-900">{userXP}</p>
+                        <p className="text-xs text-slate-500">XP Total</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-4 shadow-lg border border-purple-100 text-center">
+                        <div className="text-2xl mb-2">🔥</div>
+                        <p className="text-2xl font-bold text-slate-900">{streak}</p>
+                        <p className="text-xs text-slate-500">Dias</p>
+                    </div>
+                </div>
+            </div>
 
-                    <p className="text-slate-300 text-xs max-w-[280px] mx-auto leading-relaxed">
-                        Desenvolva as habilidades que os recrutadores mais valorizam.
+            {/* Content */}
+            <div className="px-6 space-y-6">
+                <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Como Funciona?</h2>
+                    <p className="text-slate-600 text-sm leading-relaxed">
+                        Durante 30 dias, você receberá um desafio diário estruturado para desenvolver suas soft skills de forma consistente e mensurável.
                     </p>
                 </div>
-            </div>
 
-            {/* Motivational Cards Grid */}
-            <div className="relative z-10 px-5 flex-1 overflow-y-auto pb-6">
-                <div className="space-y-3 mb-6">
-                    {/* Card 1: Inteligência Emocional */}
-                    <div className="relative h-40 rounded-2xl overflow-hidden shadow-2xl group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-indigo-600"></div>
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]"></div>
-
-                        <div className="relative h-full p-4 flex flex-col justify-between">
-                            <div>
-                                <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-2.5 py-0.5 mb-2">
-                                    <span className="text-white text-[9px] font-bold uppercase tracking-wide">Módulo 1</span>
+                {/* Feature Cards */}
+                <div className="space-y-4">
+                    {features.map((feature, index) => (
+                        <div
+                            key={index}
+                            className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-all"
+                        >
+                            <div className="flex items-start gap-4">
+                                <div className={`w-12 h-12 ${feature.iconBg} rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                                    <feature.icon className={`w-6 h-6 ${feature.iconColor}`} />
                                 </div>
-                                <h3 className="text-white font-black text-lg mb-1.5 leading-tight">
-                                    Inteligência<br />Emocional
-                                </h3>
-                                <p className="text-purple-100 text-[10px] leading-relaxed">
-                                    "Domine suas emoções antes que elas dominem você. Aprenda a ler pessoas e situações com maestria."
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-2 text-white/80 text-[9px]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-white/60"></div>
-                                <span>10 dias de transformação</span>
+                                <div className="flex-1">
+                                    <h3 className="font-bold text-slate-900 mb-1">{feature.title}</h3>
+                                    <p className="text-sm text-slate-600 leading-relaxed">{feature.description}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    ))}
+                </div>
 
-                    {/* Card 2: Liderança */}
-                    <div className="relative h-40 rounded-2xl overflow-hidden shadow-2xl group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-rose-500"></div>
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]"></div>
-
-                        <div className="relative h-full p-4 flex flex-col justify-between">
-                            <div>
-                                <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-2.5 py-0.5 mb-2">
-                                    <span className="text-white text-[9px] font-bold uppercase tracking-wide">Módulo 2</span>
-                                </div>
-                                <h3 className="text-white font-black text-lg mb-1.5 leading-tight">
-                                    Liderança &<br />Influência
-                                </h3>
-                                <p className="text-orange-100 text-[10px] leading-relaxed">
-                                    "Líderes não nascem prontos, eles se constroem. Inspire, motive e guie pessoas rumo ao sucesso."
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-2 text-white/80 text-[9px]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-white/60"></div>
-                                <span>10 dias de impacto</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Card 3: Produtividade */}
-                    <div className="relative h-40 rounded-2xl overflow-hidden shadow-2xl group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-500"></div>
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_70%)]"></div>
-
-                        <div className="relative h-full p-4 flex flex-col justify-between">
-                            <div>
-                                <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-2.5 py-0.5 mb-2">
-                                    <span className="text-white text-[9px] font-bold uppercase tracking-wide">Módulo 3</span>
-                                </div>
-                                <h3 className="text-white font-black text-lg mb-1.5 leading-tight">
-                                    Produtividade<br />Extrema
-                                </h3>
-                                <p className="text-emerald-100 text-[10px] leading-relaxed">
-                                    "Trabalhe de forma inteligente, não apenas dura. Multiplique seus resultados sem sacrificar sua saúde."
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-2 text-white/80 text-[9px]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-white/60"></div>
-                                <span>10 dias de performance</span>
-                            </div>
-                        </div>
-                    </div>
+                {/* Rules */}
+                <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl p-5 border border-purple-200">
+                    <h3 className="font-bold text-purple-900 mb-3 flex items-center gap-2">
+                        <span className="text-lg">⚡</span>
+                        Regras do Desafio
+                    </h3>
+                    <ul className="space-y-2 text-sm text-purple-800">
+                        <li className="flex items-start gap-2">
+                            <span className="text-purple-500 mt-0.5">•</span>
+                            <span>Apenas 1 tarefa disponível por vez</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                            <span className="text-purple-500 mt-0.5">•</span>
+                            <span>24 horas de intervalo entre cada desafio</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                            <span className="text-purple-500 mt-0.5">•</span>
+                            <span>100 XP por tarefa completada</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                            <span className="text-purple-500 mt-0.5">•</span>
+                            <span>Suba de nível conforme acumula XP</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
-            {/* Fixed Bottom CTA */}
-            <div className="relative z-10 px-5 pb-6 bg-gradient-to-t from-slate-900 via-slate-900 to-transparent pt-4">
-                {/* Swipe to Start Button */}
-                <div
-                    ref={containerRef}
-                    className="relative w-full h-16 bg-white/10 rounded-full border border-white/20 overflow-hidden backdrop-blur-sm"
-                    onMouseMove={handleMouseMove}
-                >
-                    {/* Background Progress */}
-                    <div
-                        className="absolute inset-0 bg-gradient-to-r from-purple-500 via-orange-500 to-purple-500 transition-all duration-200"
-                        style={{ width: `${swipeProgress * 100}%` }}
-                    ></div>
-
-                    {/* Text */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none pl-8">
-                        <span className="text-white font-black text-sm tracking-wider">
-                            {swipeProgress > 0.5 ? '🚀 SOLTE PARA COMEÇAR' : 'ARRASTE PARA INICIAR'}
-                        </span>
-                    </div>
-
-                    {/* Draggable Button */}
-                    <div
-                        ref={buttonRef}
-                        className="absolute top-2 left-2 w-12 h-12 bg-white rounded-full shadow-2xl flex items-center justify-center cursor-grab active:cursor-grabbing transition-transform"
-                        style={{
-                            transform: `translateX(${swipeProgress * (containerRef.current ? containerRef.current.offsetWidth - 64 : 0)}px)`,
-                            transition: isDragging ? 'none' : 'transform 0.3s ease-out'
-                        }}
-                        onTouchStart={handleTouchStart}
-                        onTouchMove={handleTouchMove}
-                        onTouchEnd={handleTouchEnd}
-                        onMouseDown={handleMouseDown}
-                    >
-                        <ChevronRight className="w-6 h-6 text-slate-900" />
-                    </div>
-                </div>
-
-                <p className="text-center text-slate-400 text-[10px] mt-3">
-                    ✨ Apenas 15 minutos por dia • Resultados garantidos
-                </p>
+            {/* Slide to Unlock - Fixed at bottom */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white px-6 py-6 shadow-2xl border-t border-purple-100">
+                <SlideToUnlock onUnlock={onStart} text="Deslize para começar" />
             </div>
-        </div>
+        </div >
     );
 };

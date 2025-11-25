@@ -9,6 +9,9 @@ import { ProfileScreen } from './components/ProfileScreen';
 import { InterviewSimulator } from './components/InterviewSimulator';
 import CvOptimizer from './components/CvOptimizer';
 import { UserMenuModal } from './components/UserMenuModal';
+import { SoftSkillsIntroScreen } from './components/SoftSkillsIntroScreen';
+import { SoftSkillsDashboard } from './components/SoftSkillsDashboard';
+import { SoftSkillsDayDetail } from './components/SoftSkillsDayDetail';
 import { saveUserProfile } from './services/adminService';
 import { supabase } from './services/supabase';
 import {
@@ -38,7 +41,10 @@ enum Screen {
     PROFILE = 'PROFILE',
     DISC_RESULT = 'DISC_RESULT',
     ADMIN = 'ADMIN',
-    SIMULATOR = 'SIMULATOR'
+    SIMULATOR = 'SIMULATOR',
+    SOFT_SKILLS_INTRO = 'SOFT_SKILLS_INTRO',
+    SOFT_SKILLS_DASHBOARD = 'SOFT_SKILLS_DASHBOARD',
+    SOFT_SKILLS_DAY = 'SOFT_SKILLS_DAY'
 }
 
 // --- SHARED COMPONENTS ---
@@ -1785,6 +1791,17 @@ const App: React.FC = () => {
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    // Soft Skills Coaching State
+    const [selectedDay, setSelectedDay] = useState<number>(1);
+    const [coachingProgress, setCoachingProgress] = useState<import('./types').SoftSkillsProgress>({
+        currentDay: 1,
+        completedDays: [],
+        lastCompletedAt: null,
+        totalXP: 0,
+        level: 1,
+        streak: 0
+    });
+
     const checkSession = async () => {
         try {
             const { data: { session } } = await supabase.auth.getSession();
@@ -1822,6 +1839,11 @@ const App: React.FC = () => {
                     // Restore DISC Result if exists
                     if (profile.disc_result) {
                         setDiscResult(profile.disc_result);
+                    }
+
+                    // Restore Coaching Progress if exists
+                    if (profile.soft_skills_progress) {
+                        setCoachingProgress(profile.soft_skills_progress);
                     }
                 } else if (session.user.email) {
                     // Fallback if profile doesn't exist yet but user is logged in
@@ -2009,9 +2031,89 @@ const App: React.FC = () => {
             )}
 
             {currentScreen === Screen.SOFT_SKILLS && (
-                <SoftSkillsScreen
-                    plan={analysisResult?.softSkillPlan || []}
+                <SoftSkillsIntroScreen
+                    onStart={() => handleNavigate(Screen.SOFT_SKILLS_DASHBOARD)}
                     onBack={() => handleNavigate(Screen.SERVICES)}
+                    userLevel={coachingProgress.level}
+                    userXP={coachingProgress.totalXP}
+                    streak={coachingProgress.streak}
+                />
+            )}
+
+            {currentScreen === Screen.SOFT_SKILLS_DASHBOARD && (
+                <SoftSkillsDashboard
+                    progress={coachingProgress}
+                    days={(analysisResult?.softSkillPlan || []).slice(0, 30).map((task, idx) => ({
+                        day: idx + 1,
+                        title: task.title,
+                        xp: 100
+                    }))}
+                    onDayClick={(day) => {
+                        setSelectedDay(day);
+                        handleNavigate(Screen.SOFT_SKILLS_DAY);
+                    }}
+                    onBack={() => handleNavigate(Screen.SERVICES)}
+                />
+            )}
+
+            {currentScreen === Screen.SOFT_SKILLS_DAY && analysisResult?.softSkillPlan && (
+                <SoftSkillsDayDetail
+                    day={{
+                        day: selectedDay,
+                        title: analysisResult.softSkillPlan[selectedDay - 1]?.title || 'Desafio',
+                        action: analysisResult.softSkillPlan[selectedDay - 1]?.action || '',
+                        whyItMatters: analysisResult.softSkillPlan[selectedDay - 1]?.whyItMatters || '',
+                        reading: analysisResult.softSkillPlan[selectedDay - 1]?.readingRecommendation || '',
+                        reflection: analysisResult.softSkillPlan[selectedDay - 1]?.reflectionQuestion || '',
+                        xp: 100
+                    }}
+                    onComplete={async () => {
+                        const newCompletedDays = [...coachingProgress.completedDays, selectedDay];
+                        const newXP = coachingProgress.totalXP + 100;
+                        const newLevel = Math.floor(newXP / 300) + 1;
+                        const now = new Date().toISOString();
+
+                        // Calculate streak
+                        let newStreak = coachingProgress.streak;
+                        if (coachingProgress.lastCompletedAt) {
+                            const lastDate = new Date(coachingProgress.lastCompletedAt);
+                            const today = new Date();
+                            const diffDays = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+                            if (diffDays === 1) {
+                                newStreak += 1;
+                            } else if (diffDays > 1) {
+                                newStreak = 1;
+                            }
+                        } else {
+                            newStreak = 1;
+                        }
+
+                        const newProgress = {
+                            currentDay: selectedDay + 1,
+                            completedDays: newCompletedDays,
+                            lastCompletedAt: now,
+                            totalXP: newXP,
+                            level: newLevel,
+                            streak: newStreak
+                        };
+
+                        setCoachingProgress(newProgress);
+
+                        // Save to Supabase
+                        const { data: { session } } = await supabase.auth.getSession();
+                        if (session?.user) {
+                            await supabase
+                                .from('user_profiles')
+                                .update({
+                                    soft_skills_progress: newProgress,
+                                    updated_at: new Date().toISOString()
+                                })
+                                .eq('user_id', session.user.id);
+                        }
+
+                        handleNavigate(Screen.SOFT_SKILLS_DASHBOARD);
+                    }}
+                    onBack={() => handleNavigate(Screen.SOFT_SKILLS_DASHBOARD)}
                 />
             )}
 
