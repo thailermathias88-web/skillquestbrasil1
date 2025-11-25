@@ -8,6 +8,7 @@ import { AdminPanel } from './components/AdminPanel';
 import { ProfileScreen } from './components/ProfileScreen';
 import { InterviewSimulator } from './components/InterviewSimulator';
 import CvOptimizer from './components/CvOptimizer';
+import { UserMenuModal } from './components/UserMenuModal';
 import { saveUserProfile } from './services/adminService';
 import { supabase } from './services/supabase';
 import {
@@ -1553,8 +1554,9 @@ const DashboardScreen: React.FC<{
     discResult: DiscResult | null,
     onStartDisc: () => void,
     onViewDisc: () => void,
-    userProfile: UserProfile
-}> = ({ result, onNavigate, onSkillClick, discResult, onStartDisc, onViewDisc, userProfile }) => {
+    userProfile: UserProfile,
+    onOpenUserMenu: () => void
+}> = ({ result, onNavigate, onSkillClick, discResult, onStartDisc, onViewDisc, userProfile, onOpenUserMenu }) => {
     // Se não houver resultado de análise, mostrar tela de boas-vindas/início
     if (!result) {
         return (
@@ -1613,12 +1615,7 @@ const DashboardScreen: React.FC<{
                         )}
                         <div className="relative">
                             <button
-                                onClick={() => {
-                                    const shouldLogout = window.confirm("Deseja realmente sair?");
-                                    if (shouldLogout) {
-                                        supabase.auth.signOut();
-                                    }
-                                }}
+                                onClick={() => onOpenUserMenu()}
                                 className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center hover:bg-slate-200 transition-colors"
                             >
                                 <User className="w-5 h-5 text-slate-600" />
@@ -1785,6 +1782,7 @@ const App: React.FC = () => {
     // Modals
     const [showPremiumModal, setShowPremiumModal] = useState(false);
     const [showDiscModal, setShowDiscModal] = useState(false);
+    const [showUserMenu, setShowUserMenu] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const checkSession = async () => {
@@ -1982,6 +1980,7 @@ const App: React.FC = () => {
                         onStartDisc={() => setShowDiscModal(true)}
                         onViewDisc={() => handleNavigate(Screen.DISC_RESULT)}
                         userProfile={userProfile}
+                        onOpenUserMenu={() => setShowUserMenu(true)}
                     />
                     <BottomNav current={Screen.DASHBOARD} onNavigate={handleNavigate} />
                 </>
@@ -2082,6 +2081,18 @@ const App: React.FC = () => {
                     onUpgrade={() => {
                         setIsPremium(true);
                         setShowPremiumModal(false);
+                    }}
+                />
+            )}
+
+            {showUserMenu && (
+                <UserMenuModal
+                    onClose={() => setShowUserMenu(false)}
+                    userProfile={userProfile}
+                    isPremium={isPremium}
+                    onUpgrade={() => {
+                        setShowUserMenu(false);
+                        setShowPremiumModal(true);
                     }}
                 />
             )}

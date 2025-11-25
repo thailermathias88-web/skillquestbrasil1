@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { UserProfile, AnalysisResult } from '../types';
 import {
     ArrowLeft, Camera, Linkedin, Instagram, Facebook,
     Briefcase, Star, Award, Zap, TrendingUp, Code, Palette,
     Users, Target, ChevronRight
 } from 'lucide-react';
+import { SocialLinksModal } from './SocialLinksModal';
 
 interface ProfileScreenProps {
     userProfile: UserProfile;
@@ -20,6 +21,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     onUpdateProfile
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [showSocialLinksModal, setShowSocialLinksModal] = useState(false);
 
     const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -132,48 +134,27 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                             {/* Social Links */}
                             <div className="flex gap-2 justify-center sm:justify-start flex-wrap">
                                 <button
-                                    onClick={() => {
-                                        const url = prompt('Digite a URL do seu LinkedIn:', userProfile.socialLinks?.linkedin || '');
-                                        if (url !== null) {
-                                            onUpdateProfile({
-                                                ...userProfile,
-                                                socialLinks: { ...userProfile.socialLinks, linkedin: url }
-                                            });
-                                        }
-                                    }}
-                                    className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform ${userProfile.socialLinks?.linkedin ? 'bg-[#0077b5] text-white' : 'bg-slate-100 text-slate-400'}`}
+                                    onClick={() => setShowSocialLinksModal(true)}
+                                    className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform ${userProfile.socialLinks?.linkedin ? 'bg-[#0077b5] text-white' : 'bg-slate-100 text-slate-400'
+                                        }`}
                                     title="LinkedIn"
                                 >
                                     <Linkedin className="w-4 h-4" />
                                 </button>
 
                                 <button
-                                    onClick={() => {
-                                        const url = prompt('Digite a URL do seu Instagram:', userProfile.socialLinks?.instagram || '');
-                                        if (url !== null) {
-                                            onUpdateProfile({
-                                                ...userProfile,
-                                                socialLinks: { ...userProfile.socialLinks, instagram: url }
-                                            });
-                                        }
-                                    }}
-                                    className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform ${userProfile.socialLinks?.instagram ? 'bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 text-white' : 'bg-slate-100 text-slate-400'}`}
+                                    onClick={() => setShowSocialLinksModal(true)}
+                                    className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform ${userProfile.socialLinks?.instagram ? 'bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 text-white' : 'bg-slate-100 text-slate-400'
+                                        }`}
                                     title="Instagram"
                                 >
                                     <Instagram className="w-4 h-4" />
                                 </button>
 
                                 <button
-                                    onClick={() => {
-                                        const url = prompt('Digite a URL do seu Facebook:', userProfile.socialLinks?.facebook || '');
-                                        if (url !== null) {
-                                            onUpdateProfile({
-                                                ...userProfile,
-                                                socialLinks: { ...userProfile.socialLinks, facebook: url }
-                                            });
-                                        }
-                                    }}
-                                    className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform ${userProfile.socialLinks?.facebook ? 'bg-[#1877f2] text-white' : 'bg-slate-100 text-slate-400'}`}
+                                    onClick={() => setShowSocialLinksModal(true)}
+                                    className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform ${userProfile.socialLinks?.facebook ? 'bg-[#1877f2] text-white' : 'bg-slate-100 text-slate-400'
+                                        }`}
                                     title="Facebook"
                                 >
                                     <Facebook className="w-4 h-4" />
@@ -300,6 +281,20 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                     Adicionar Nova Habilidade
                 </button>
             </div>
+
+            {/* Social Links Modal */}
+            {showSocialLinksModal && (
+                <SocialLinksModal
+                    onClose={() => setShowSocialLinksModal(false)}
+                    currentLinks={userProfile.socialLinks || {}}
+                    onSave={(links) => {
+                        onUpdateProfile({
+                            ...userProfile,
+                            socialLinks: links
+                        });
+                    }}
+                />
+            )}
         </div>
     );
 };
