@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { UserProfile, QuizData } from '../types';
+import { UserProfile, QuizData, SoftSkillsProgress } from '../types';
 
 // Email do administrador
 const ADMIN_EMAIL = 'thailer.mathias88@gmail.com';
@@ -87,6 +87,10 @@ export async function saveUserProfile(profile: UserProfile, userId: string): Pro
                 cv_url: profile.cvBase64 ? `data:${profile.cvMimeType};base64,${profile.cvBase64}` : null,
                 cv_mime_type: profile.cvMimeType,
                 quiz_data: profile.quizData,
+                soft_skills_progress: profile.softSkillsProgress,
+                avatar_base64: profile.avatarBase64,
+                avatar_mime_type: profile.avatarMimeType,
+                social_links: profile.socialLinks,
                 updated_at: new Date().toISOString()
             }, {
                 onConflict: 'user_id'
@@ -145,4 +149,24 @@ export function downloadCV(user: AdminUserData): void {
     link.href = user.cvUrl;
     link.download = `CV_${user.name.replace(/\s+/g, '_')}.pdf`;
     link.click();
+}
+
+/**
+ * Atualiza apenas o progresso de soft skills
+ */
+export async function updateSoftSkillsProgress(userId: string, progress: SoftSkillsProgress): Promise<void> {
+    try {
+        const { error } = await supabase
+            .from('user_profiles')
+            .update({
+                soft_skills_progress: progress,
+                updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId);
+
+        if (error) throw error;
+    } catch (error) {
+        console.error('Error updating soft skills progress:', error);
+        throw error;
+    }
 }

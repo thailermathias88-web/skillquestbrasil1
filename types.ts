@@ -16,6 +16,14 @@ export interface UserProfile {
   cvFile: File | null;
   cvBase64: string | null;
   cvMimeType: string | null;
+  softSkillsProgress?: SoftSkillsProgress;
+  avatarBase64?: string | null;
+  avatarMimeType?: string | null;
+  socialLinks?: {
+    instagram?: string;
+    facebook?: string;
+    linkedin?: string;
+  };
 }
 
 export interface Skill {
@@ -192,3 +200,34 @@ export interface AdminUserData {
   quizData?: QuizData;
   createdAt: string;
 }
+
+// --- CV OPTIMIZER TYPES ---
+export interface CVOptimizationResult {
+  optimizedSummary: string;
+  highlightedSkills: string[];
+  keyImprovements: string[];
+  atsScore: number; // 0-100
+  suggestions: string[];
+}
+
+// --- SOFT SKILLS GAMIFICATION TYPES ---
+export interface SoftSkillsProgress {
+  level: number; // Nível do usuário (1-5)
+  currentDay: number; // Dia atual (1-30)
+  completedDays: number[]; // Dias já completados
+  badges: string[]; // Badges conquistados
+  lastCompletedDate: string | null; // ISO Date do último dia completado
+  experience: number; // XP acumulado
+}
+
+export interface DailyTask {
+  day: number;
+  title: string;
+  category: 'Comunicação' | 'Liderança' | 'Inteligência Emocional' | 'Produtividade' | 'Carreira';
+  action: string;
+  whyItMatters: string;
+  reflection: string;
+  reading: string;
+  xpReward: number;
+}
+

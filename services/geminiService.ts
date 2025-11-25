@@ -10,9 +10,9 @@ export const analyzeCandidateProfile = async (
   cvBase64: string,
   cvMimeType: string
 ): Promise<AnalysisResult> => {
-  
+
   const model = "gemini-2.5-flash";
-  
+
   const prompt = `
     You are an elite AI Headhunter and Career Coach. 
     1. ANALYZE the attached CV image/PDF deeply. 
@@ -124,7 +124,7 @@ export const analyzeCandidateProfile = async (
 
     const text = response.text;
     if (!text) throw new Error("No response from Gemini");
-    
+
     const data = JSON.parse(text);
 
     // CRITICAL: Safety checks to prevent 'map of undefined'
@@ -147,12 +147,12 @@ export const analyzeCandidateProfile = async (
 };
 
 export const generateSkillGapAnalysis = async (
-    skillName: string, 
-    currentScore: number, 
-    targetRole: string
+  skillName: string,
+  currentScore: number,
+  targetRole: string
 ): Promise<SkillGapAnalysis> => {
-    const model = "gemini-2.5-flash";
-    const prompt = `
+  const model = "gemini-2.5-flash";
+  const prompt = `
         Atue como um mentor técnico sênior.
         O candidato tem a habilidade "${skillName}" com um nível de proficiência aproximado de ${currentScore}%.
         O objetivo dele é o cargo: "${targetRole}".
@@ -168,35 +168,35 @@ export const generateSkillGapAnalysis = async (
         }
     `;
 
-    try {
-        const response = await ai.models.generateContent({
-            model: model,
-            contents: { text: prompt },
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        currentStatus: { type: Type.STRING },
-                        missingPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        actionPlan: { type: Type.STRING }
-                    }
-                }
-            }
-        });
-        const data = JSON.parse(response.text || "{}");
-        
-        // Safety check
-        if (!data.missingPoints) data.missingPoints = [];
-        
-        return data as SkillGapAnalysis;
-    } catch (e) {
-        return {
-            currentStatus: "Análise indisponível.",
-            missingPoints: ["Continue praticando.", "Busque projetos reais."],
-            actionPlan: "Estude a documentação oficial."
-        };
-    }
+  try {
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: { text: prompt },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            currentStatus: { type: Type.STRING },
+            missingPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
+            actionPlan: { type: Type.STRING }
+          }
+        }
+      }
+    });
+    const data = JSON.parse(response.text || "{}");
+
+    // Safety check
+    if (!data.missingPoints) data.missingPoints = [];
+
+    return data as SkillGapAnalysis;
+  } catch (e) {
+    return {
+      currentStatus: "Análise indisponível.",
+      missingPoints: ["Continue praticando.", "Busque projetos reais."],
+      actionPlan: "Estude a documentação oficial."
+    };
+  }
 }
 
 
@@ -224,7 +224,7 @@ export const generateDiscFeedback = async (targetRole: string, discType: string,
       contents: { text: prompt },
       config: {
         responseMimeType: "application/json",
-         responseSchema: {
+        responseSchema: {
           type: Type.OBJECT,
           properties: {
             matchScore: { type: Type.INTEGER },
@@ -235,29 +235,29 @@ export const generateDiscFeedback = async (targetRole: string, discType: string,
         }
       }
     });
-    
+
     const data = JSON.parse(response.text || "{}");
-    
+
     // CRITICAL: Safety checks for Premium Dashboard
     if (!data.synergies || !Array.isArray(data.synergies)) data.synergies = ["Perfil altamente adaptável."];
     if (!data.blindSpots || !Array.isArray(data.blindSpots)) data.blindSpots = ["Atenção aos detalhes.", "Gestão de tempo."];
     if (!data.communicationTip) data.communicationTip = "Seja claro e objetivo.";
-    
+
     return data as DiscAnalysisDetails;
 
   } catch (e) {
     return {
-        matchScore: 50,
-        synergies: ["Análise indisponível no momento."],
-        blindSpots: ["Tente novamente mais tarde."],
-        communicationTip: "Seja você mesmo."
+      matchScore: 50,
+      synergies: ["Análise indisponível no momento."],
+      blindSpots: ["Tente novamente mais tarde."],
+      communicationTip: "Seja você mesmo."
     };
   }
 }
 
 export const getSalaryData = async (role: string, experience: string): Promise<SalaryData> => {
-    const model = "gemini-2.5-flash";
-    const prompt = `
+  const model = "gemini-2.5-flash";
+  const prompt = `
         Aja como um especialista sênior em remuneração (C&B) no Brasil.
         Cargo: "${role}"
         Nível: "${experience}"
@@ -291,88 +291,88 @@ export const getSalaryData = async (role: string, experience: string): Promise<S
         }
     `;
 
-    try {
-        const response = await ai.models.generateContent({
-            model: model,
-            contents: { text: prompt },
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        junior: { type: Type.INTEGER },
-                        pleno: { type: Type.INTEGER },
-                        senior: { type: Type.INTEGER },
-                        marketDemand: { type: Type.STRING },
-                        regionalData: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    region: { type: Type.STRING },
-                                    factor: { type: Type.STRING },
-                                    average: { type: Type.INTEGER }
-                                }
-                            }
-                        },
-                        negotiationStrategy: {
-                            type: Type.OBJECT,
-                            properties: {
-                                mainArgument: { type: Type.STRING },
-                                secondaryArgument: { type: Type.STRING },
-                                closingPhrase: { type: Type.STRING }
-                            }
-                        }
-                    }
+  try {
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: { text: prompt },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            junior: { type: Type.INTEGER },
+            pleno: { type: Type.INTEGER },
+            senior: { type: Type.INTEGER },
+            marketDemand: { type: Type.STRING },
+            regionalData: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  region: { type: Type.STRING },
+                  factor: { type: Type.STRING },
+                  average: { type: Type.INTEGER }
                 }
-            }
-        });
-        const data = JSON.parse(response.text || "{}");
-        
-        // Ensure arrays and objects exist to prevent UI crashes
-        if (!data.regionalData || !Array.isArray(data.regionalData)) {
-            data.regionalData = [];
-        }
-        
-        if (!data.negotiationStrategy) {
-             data.negotiationStrategy = {
-                mainArgument: "Destaque seus resultados e impacto nos projetos anteriores.",
-                secondaryArgument: "Mencione sua evolução técnica e aprendizado contínuo.",
-                closingPhrase: "Estou aberto a ouvir a proposta da empresa."
-            };
-        }
-
-        // Ensure numeric values exist
-        if (typeof data.junior !== 'number') data.junior = 0;
-        if (typeof data.pleno !== 'number') data.pleno = 0;
-        if (typeof data.senior !== 'number') data.senior = 0;
-
-        return data;
-    } catch (e) {
-        console.error(e);
-        return {
-            junior: 3000,
-            pleno: 5000,
-            senior: 8000,
-            marketDemand: "Média",
-            regionalData: [],
+              }
+            },
             negotiationStrategy: {
-                mainArgument: "Foque nos resultados.",
-                secondaryArgument: "Mostre evolução.",
-                closingPhrase: "Estou à disposição."
+              type: Type.OBJECT,
+              properties: {
+                mainArgument: { type: Type.STRING },
+                secondaryArgument: { type: Type.STRING },
+                closingPhrase: { type: Type.STRING }
+              }
             }
-        };
+          }
+        }
+      }
+    });
+    const data = JSON.parse(response.text || "{}");
+
+    // Ensure arrays and objects exist to prevent UI crashes
+    if (!data.regionalData || !Array.isArray(data.regionalData)) {
+      data.regionalData = [];
     }
+
+    if (!data.negotiationStrategy) {
+      data.negotiationStrategy = {
+        mainArgument: "Destaque seus resultados e impacto nos projetos anteriores.",
+        secondaryArgument: "Mencione sua evolução técnica e aprendizado contínuo.",
+        closingPhrase: "Estou aberto a ouvir a proposta da empresa."
+      };
+    }
+
+    // Ensure numeric values exist
+    if (typeof data.junior !== 'number') data.junior = 0;
+    if (typeof data.pleno !== 'number') data.pleno = 0;
+    if (typeof data.senior !== 'number') data.senior = 0;
+
+    return data;
+  } catch (e) {
+    console.error(e);
+    return {
+      junior: 3000,
+      pleno: 5000,
+      senior: 8000,
+      marketDemand: "Média",
+      regionalData: [],
+      negotiationStrategy: {
+        mainArgument: "Foque nos resultados.",
+        secondaryArgument: "Mostre evolução.",
+        closingPhrase: "Estou à disposição."
+      }
+    };
+  }
 };
 
 export const getInterviewPrep = async (role: string, type: 'behavioral' | 'technical' | 'case-study' = 'behavioral'): Promise<InterviewPrepData> => {
-    const model = "gemini-2.5-flash";
-    
-    let prompt = "";
-    let schema: any = {};
+  const model = "gemini-2.5-flash";
 
-    if (type === 'case-study') {
-        prompt = `
+  let prompt = "";
+  let schema: any = {};
+
+  if (type === 'case-study') {
+    prompt = `
             Crie 3 "Estudos de Caso" distintos, detalhados e inspiradores sobre candidatos que conseguiram vagas de "${role}".
             
             IMPORTANTE:
@@ -389,29 +389,29 @@ export const getInterviewPrep = async (role: string, type: 'behavioral' | 'techn
 
             Retorne JSON (PT-BR).
         `;
-        schema = {
-             type: Type.OBJECT,
-             properties: {
-                 caseStudies: {
-                     type: Type.ARRAY,
-                     items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            title: { type: Type.STRING },
-                            candidateProfile: { type: Type.STRING },
-                            scenario: { type: Type.STRING },
-                            challenge: { type: Type.STRING },
-                            keyQuestion: { type: Type.STRING },
-                            candidateResponse: { type: Type.STRING },
-                            whyTheyGotHired: { type: Type.STRING }
-                        }
-                     }
-                 }
-             }
-        };
+    schema = {
+      type: Type.OBJECT,
+      properties: {
+        caseStudies: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              title: { type: Type.STRING },
+              candidateProfile: { type: Type.STRING },
+              scenario: { type: Type.STRING },
+              challenge: { type: Type.STRING },
+              keyQuestion: { type: Type.STRING },
+              candidateResponse: { type: Type.STRING },
+              whyTheyGotHired: { type: Type.STRING }
+            }
+          }
+        }
+      }
+    };
 
-    } else if (type === 'technical') {
-         prompt = `
+  } else if (type === 'technical') {
+    prompt = `
             Prepare um candidato para entrevista de: "${role}".
             Foco: Perguntas TÉCNICAS (Hard Skills).
 
@@ -423,26 +423,26 @@ export const getInterviewPrep = async (role: string, type: 'behavioral' | 'techn
 
             Retorne JSON (PT-BR).
         `;
-        schema = {
+    schema = {
+      type: Type.OBJECT,
+      properties: {
+        questions: {
+          type: Type.ARRAY,
+          items: {
             type: Type.OBJECT,
             properties: {
-                questions: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            id: { type: Type.INTEGER },
-                            question: { type: Type.STRING },
-                            bestAnswer: { type: Type.STRING },
-                            recruiterTip: { type: Type.STRING }
-                        }
-                    }
-                }
+              id: { type: Type.INTEGER },
+              question: { type: Type.STRING },
+              bestAnswer: { type: Type.STRING },
+              recruiterTip: { type: Type.STRING }
             }
-        };
-    } else {
-        // Behavioral Q&A
-        prompt = `
+          }
+        }
+      }
+    };
+  } else {
+    // Behavioral Q&A
+    prompt = `
             Prepare um candidato para entrevista de: "${role}".
             Foco: Perguntas COMPORTAMENTAIS (Soft Skills/Culture Fit).
 
@@ -453,61 +453,164 @@ export const getInterviewPrep = async (role: string, type: 'behavioral' | 'techn
 
             Retorne JSON (PT-BR).
         `;
-        schema = {
+    schema = {
+      type: Type.OBJECT,
+      properties: {
+        questions: {
+          type: Type.ARRAY,
+          items: {
             type: Type.OBJECT,
             properties: {
-                questions: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            id: { type: Type.INTEGER },
-                            question: { type: Type.STRING },
-                            bestAnswer: { type: Type.STRING },
-                            recruiterTip: { type: Type.STRING }
-                        }
-                    }
-                },
-                dressCode: {
-                    type: Type.OBJECT,
-                    properties: {
-                        attire: { type: Type.STRING },
-                        description: { type: Type.STRING },
-                        donts: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        arrivalTime: { type: Type.STRING }
-                    }
-                }
+              id: { type: Type.INTEGER },
+              question: { type: Type.STRING },
+              bestAnswer: { type: Type.STRING },
+              recruiterTip: { type: Type.STRING }
             }
-        };
+          }
+        },
+        dressCode: {
+          type: Type.OBJECT,
+          properties: {
+            attire: { type: Type.STRING },
+            description: { type: Type.STRING },
+            donts: { type: Type.ARRAY, items: { type: Type.STRING } },
+            arrivalTime: { type: Type.STRING }
+          }
+        }
+      }
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: { text: prompt },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: schema
+      }
+    });
+
+    const result = JSON.parse(response.text || "{}");
+
+    // Safety checks
+    if (!result.questions) result.questions = [];
+    if (!result.caseStudies) result.caseStudies = [];
+    if (result.dressCode && !result.dressCode.donts) result.dressCode.donts = [];
+
+    // Tag the result with the requested type for UI handling
+    return { ...result, type: type === 'case-study' ? 'case-study' : 'qa' };
+
+  } catch (e) {
+    console.error(e);
+    // Fallback
+    return {
+      type: 'qa',
+      questions: [{ id: 1, question: "Erro ao gerar", bestAnswer: "Tente novamente.", recruiterTip: "Erro na IA." }],
+      dressCode: { attire: "Social", description: "Roupa formal.", donts: [], arrivalTime: "10 min antes" }
+    };
+  }
+};
+
+export const optimizeCVContent = async (
+  cvBase64: string,
+  cvMimeType: string,
+  targetRole: string
+): Promise<import('../types').CVOptimizationResult> => {
+  const model = "gemini-2.5-flash";
+  const prompt = `
+        Você é um especialista em otimização de currículos e sistemas ATS (Applicant Tracking System).
+        
+        Analise o currículo anexado e otimize-o para a vaga de: "${targetRole}"
+        
+        Sua tarefa:
+        1. Reescreva o resumo profissional de forma impactante e alinhada à vaga
+        2. Identifique e destaque as skills mais relevantes para a vaga
+        3. Liste melhorias específicas que aumentarão a taxa de aprovação em sistemas ATS
+        4. Calcule um score ATS (0-100) baseado em:
+           - Uso de palavras-chave relevantes
+           - Formatação adequada
+           - Clareza e objetividade
+           - Alinhamento com a vaga
+        5. Forneça sugestões práticas de melhoria
+        
+        Retorne JSON (PT-BR):
+        {
+            "optimizedSummary": "Resumo profissional otimizado (2-3 frases impactantes)",
+            "highlightedSkills": ["Skill 1", "Skill 2", "Skill 3", ...],
+            "keyImprovements": ["Melhoria 1", "Melhoria 2", "Melhoria 3"],
+            "atsScore": 0-100,
+            "suggestions": ["Sugestão prática 1", "Sugestão prática 2", ...]
+        }
+    `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: {
+        parts: [
+          {
+            inlineData: {
+              mimeType: cvMimeType,
+              data: cvBase64
+            }
+          },
+          { text: prompt }
+        ]
+      },
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            optimizedSummary: { type: Type.STRING },
+            highlightedSkills: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING }
+            },
+            keyImprovements: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING }
+            },
+            atsScore: { type: Type.INTEGER },
+            suggestions: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING }
+            }
+          }
+        }
+      }
+    });
+
+    const data = JSON.parse(response.text || "{}");
+
+    // Safety checks
+    if (!data.highlightedSkills || !Array.isArray(data.highlightedSkills)) {
+      data.highlightedSkills = [];
+    }
+    if (!data.keyImprovements || !Array.isArray(data.keyImprovements)) {
+      data.keyImprovements = [];
+    }
+    if (!data.suggestions || !Array.isArray(data.suggestions)) {
+      data.suggestions = [];
+    }
+    if (typeof data.atsScore !== 'number') {
+      data.atsScore = 0;
+    }
+    if (!data.optimizedSummary) {
+      data.optimizedSummary = "Resumo não disponível.";
     }
 
-    try {
-        const response = await ai.models.generateContent({
-            model: model,
-            contents: { text: prompt },
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: schema
-            }
-        });
-        
-        const result = JSON.parse(response.text || "{}");
-        
-        // Safety checks
-        if (!result.questions) result.questions = [];
-        if (!result.caseStudies) result.caseStudies = [];
-        if (result.dressCode && !result.dressCode.donts) result.dressCode.donts = [];
+    return data;
 
-        // Tag the result with the requested type for UI handling
-        return { ...result, type: type === 'case-study' ? 'case-study' : 'qa' };
-
-    } catch (e) {
-        console.error(e);
-        // Fallback
-        return {
-            type: 'qa',
-            questions: [{ id: 1, question: "Erro ao gerar", bestAnswer: "Tente novamente.", recruiterTip: "Erro na IA." }],
-            dressCode: { attire: "Social", description: "Roupa formal.", donts: [], arrivalTime: "10 min antes" }
-        };
-    }
+  } catch (e) {
+    console.error("CV Optimization Error:", e);
+    return {
+      optimizedSummary: "Erro ao otimizar currículo. Tente novamente.",
+      highlightedSkills: [],
+      keyImprovements: [],
+      atsScore: 0,
+      suggestions: ["Tente fazer upload novamente do seu currículo."]
+    };
+  }
 };

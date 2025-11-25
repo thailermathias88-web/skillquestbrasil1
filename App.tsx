@@ -5,6 +5,7 @@ import { analyzeCandidateProfile, generateDiscFeedback, generateSkillGapAnalysis
 import { DiscTestModal } from './components/DiscTestModal';
 import { PremiumModal } from './components/PremiumModal';
 import { AdminPanel } from './components/AdminPanel';
+import { ProfileScreen } from './components/ProfileScreen';
 import { saveUserProfile } from './services/adminService';
 import { supabase } from './services/supabase';
 import {
@@ -1792,6 +1793,9 @@ const App: React.FC = () => {
                         experience: profile.experience || prev.experience,
                         city: profile.city || prev.city,
                         whatsapp: profile.whatsapp || prev.whatsapp,
+                        avatarBase64: profile.avatar_base64 || prev.avatarBase64,
+                        avatarMimeType: profile.avatar_mime_type || prev.avatarMimeType,
+                        socialLinks: profile.social_links || prev.socialLinks,
                     }));
 
                     // Restore Analysis Result if exists
@@ -2067,17 +2071,30 @@ const App: React.FC = () => {
             )}
 
             {currentScreen === Screen.PROFILE && (
-                <div className="min-h-screen flex items-center justify-center bg-white pb-20">
-                    <div className="text-center p-6">
-                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <User className="w-8 h-8 text-slate-600" />
-                        </div>
-                        <h2 className="text-xl font-bold mb-2">Seu Perfil</h2>
-                        <p className="text-slate-500 mb-6">{userProfile.name || 'Usuário'}</p>
-                        <button onClick={() => handleNavigate(Screen.DASHBOARD)} className="text-slate-900 font-bold">Voltar ao Dashboard</button>
-                    </div>
+                <>
+                    <ProfileScreen
+                        userProfile={userProfile}
+                        analysisResult={analysisResult}
+                        onBack={() => handleNavigate(Screen.DASHBOARD)}
+                        onUpdateProfile={async (updatedProfile) => {
+                            setUserProfile(updatedProfile);
+                            // Save to Supabase
+                            const { data: { session } } = await supabase.auth.getSession();
+                            if (session?.user) {
+                                await supabase
+                                    .from('user_profiles')
+                                    .upsert({
+                                        user_id: session.user.id,
+                                        avatar_base64: updatedProfile.avatarBase64,
+                                        avatar_mime_type: updatedProfile.avatarMimeType,
+                                        social_links: updatedProfile.socialLinks,
+                                        updated_at: new Date().toISOString()
+                                    }, { onConflict: 'user_id' });
+                            }
+                        }}
+                    />
                     <BottomNav current={Screen.PROFILE} onNavigate={handleNavigate} />
-                </div>
+                </>
             )}
         </div>
     );
