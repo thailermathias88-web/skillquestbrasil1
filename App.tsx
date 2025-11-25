@@ -128,7 +128,7 @@ const SkillAnalysisModal: React.FC<{
                             {/* Current Status */}
                             <div className="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-xl">
                                 <h4 className="font-bold text-blue-800 text-sm mb-1 flex items-center gap-2">
-                                    <Target className="w-4 h-4" /> DiagnÃ³stico Atual
+                                    <Target className="w-4 h-4" /> Diagnóstico Atual
                                 </h4>
                                 <p className="text-sm text-blue-900 leading-relaxed">
                                     "{analysis?.currentStatus}"
@@ -178,7 +178,7 @@ const SkillAnalysisModal: React.FC<{
 
 const BottomNav: React.FC<{ current: Screen, onNavigate: (s: Screen) => void }> = ({ current, onNavigate }) => {
     const navItems = [
-        { id: Screen.DASHBOARD, icon: Home, label: 'InÃ­cio' },
+        { id: Screen.DASHBOARD, icon: Home, label: 'Início' },
         { id: Screen.SERVICES, icon: Rocket, label: 'Recursos' },
         { id: Screen.MENTORSHIP, icon: GraduationCap, label: 'Mentoria' }, // Changed from Salary/Vagas
         { id: Screen.PROFILE, icon: User, label: 'Perfil' },
@@ -223,7 +223,7 @@ const LoadingOverlay: React.FC = () => (
     <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center text-white animate-fadeIn">
         <Loader2 className="w-12 h-12 animate-spin text-[#fbbf24] mb-4" />
         <h2 className="text-xl font-bold">Analisando seu Perfil...</h2>
-        <p className="text-white/80 text-sm mt-2">Nossa IA estÃ¡ lendo seu currÃ­culo em detalhes.</p>
+        <p className="text-white/80 text-sm mt-2">Nossa IA está lendo seu currículo em detalhes.</p>
     </div>
 );
 
@@ -341,9 +341,9 @@ const AuthScreen: React.FC<{ onLoginSuccess: () => void; onRegisterClick: () => 
                 </button>
 
                 <p className="text-center text-sm text-slate-600">
-                    NÃ£o tem uma conta?{' '}
+                    Não tem uma conta?{' '}
                     <button onClick={onRegisterClick} className="text-emerald-600 font-bold hover:underline">
-                        Cadastre-se grÃ¡tis
+                        Cadastre-se grátis
                     </button>
                 </p>
             </div>
@@ -446,12 +446,12 @@ const RegisterScreen: React.FC<{ onRegister: () => void }> = ({ onRegister }) =>
                             disabled={loading}
                             className="w-full bg-[#009c3b] hover:bg-emerald-700 text-white font-bold text-lg py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
                         >
-                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Cadastrar GrÃ¡tis"}
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Cadastrar Grátis"}
                         </button>
                     </div>
 
                     <p className="text-center text-xs text-slate-400 mt-4">
-                        Ao se cadastrar, vocÃª concorda com nossos Termos de Uso e PolÃ­tica de Privacidade.
+                        Ao se cadastrar, você concorda com nossos Termos de Uso e Política de Privacidade.
                     </p>
                 </form>
             </div>
@@ -464,22 +464,22 @@ const MentorshipScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         {
             name: "Luciene Silva",
             role: "Mentora Comportamental & Vendas",
-            topics: ["InteligÃªncia Emocional", "Atendimento", "Vendas", "InteligÃªncia Social"],
+            topics: ["Inteligência Emocional", "Atendimento", "Vendas", "Inteligência Social"],
             color: "bg-pink-100 text-pink-700"
         },
         {
             name: "Thailer Mathias",
-            role: "Estrategista de GestÃ£o & Tech",
-            topics: ["KPIs", "FinanÃ§as Corporativas", "InteligÃªncia Artificial"],
+            role: "Estrategista de Gestão & Tech",
+            topics: ["KPIs", "Finanças Corporativas", "Inteligência Artificial"],
             color: "bg-blue-100 text-blue-700"
         }
     ];
 
     const schedule = [
-        { day: "10", month: "OUT", time: "19:00", mentor: "Luciene Silva", title: "InteligÃªncia Social no Corporativo", type: "Comportamento" },
-        { day: "24", month: "OUT", time: "19:00", mentor: "Thailer Mathias", title: "Dominando KPIs e MÃ©tricas", type: "GestÃ£o" },
-        { day: "07", month: "NOV", time: "19:00", mentor: "Luciene Silva", title: "MÃ¡quina de Vendas & Atendimento", type: "Vendas" },
-        { day: "21", month: "NOV", time: "19:00", mentor: "Thailer Mathias", title: "IA e FinanÃ§as na PrÃ¡tica", type: "Tech" },
+        { day: "10", month: "OUT", time: "19:00", mentor: "Luciene Silva", title: "Inteligência Social no Corporativo", type: "Comportamento" },
+        { day: "24", month: "OUT", time: "19:00", mentor: "Thailer Mathias", title: "Dominando KPIs e Métricas", type: "Gestão" },
+        { day: "07", month: "NOV", time: "19:00", mentor: "Luciene Silva", title: "Máquina de Vendas & Atendimento", type: "Vendas" },
+        { day: "21", month: "NOV", time: "19:00", mentor: "Thailer Mathias", title: "IA e Finanças na Prática", type: "Tech" },
     ];
 
     return (
@@ -497,7 +497,7 @@ const MentorshipScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
                 <h1 className="text-2xl font-bold mb-2">Acelere sua Carreira com Experts</h1>
                 <p className="text-blue-100 text-sm leading-relaxed max-w-sm">
-                    SessÃµes exclusivas sobre Comportamento, Vendas, GestÃ£o e IA para vocÃª se destacar no mercado.
+                    Sessões exclusivas sobre Comportamento, Vendas, Gestão e IA para você se destacar no mercado.
                 </p>
             </div>
 
@@ -533,7 +533,7 @@ const MentorshipScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 {/* Schedule Section */}
                 <div>
                     <h3 className="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
-                        <CalendarClock className="w-5 h-5 text-emerald-500" /> PrÃ³ximas SessÃµes
+                        <CalendarClock className="w-5 h-5 text-emerald-500" /> Próximas Sessões
                     </h3>
                     <div className="space-y-4">
                         {schedule.map((s, i) => (
@@ -562,9 +562,9 @@ const MentorshipScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 <div className="pt-2">
                     <button className="w-full bg-slate-900 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-xl hover:bg-slate-800 transition-colors">
                         <Video className="w-5 h-5" />
-                        Acessar Sala de TransmissÃ£o
+                        Acessar Sala de Transmissão
                     </button>
-                    <p className="text-center text-xs text-slate-400 mt-3">Link liberado 10 minutos antes do inÃ­cio.</p>
+                    <p className="text-center text-xs text-slate-400 mt-3">Link liberado 10 minutos antes do início.</p>
                 </div>
 
             </div>
@@ -589,7 +589,7 @@ const OnboardingScreen: React.FC<{ onAnalyze: (data: any) => void, isLoading: bo
             <Header title="Configurar Perfil" />
             <div className="mt-6 max-w-lg mx-auto space-y-8">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Vamos comeÃ§ar! ðŸš€</h2>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Vamos começar! ðŸš€</h2>
                     <p className="text-slate-500 text-sm">Preencha os dados abaixo para nossa IA analisar seu perfil.</p>
                 </div>
 
@@ -608,22 +608,22 @@ const OnboardingScreen: React.FC<{ onAnalyze: (data: any) => void, isLoading: bo
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">NÃ­vel de ExperiÃªncia</label>
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Nível de Experiência</label>
                             <select
                                 value={experience}
                                 onChange={(e) => setExperience(e.target.value)}
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:border-emerald-500 outline-none"
                             >
-                                <option value="EstÃ¡gio">EstÃ¡gio</option>
-                                <option value="JÃºnior">JÃºnior (0-2 anos)</option>
+                                <option value="Estágio">Estágio</option>
+                                <option value="Júnior">Júnior (0-2 anos)</option>
                                 <option value="Pleno">Pleno (3-5 anos)</option>
-                                <option value="SÃªnior">SÃªnior (5+ anos)</option>
-                                <option value="LideranÃ§a">LideranÃ§a / Tech Lead</option>
+                                <option value="Sênior">Sênior (5+ anos)</option>
+                                <option value="Liderança">Liderança / Tech Lead</option>
                             </select>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Qual sua maior motivaÃ§Ã£o hoje?</label>
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Qual sua maior motivação hoje?</label>
                             <textarea
                                 value={motivation}
                                 onChange={(e) => setMotivation(e.target.value)}
@@ -633,7 +633,7 @@ const OnboardingScreen: React.FC<{ onAnalyze: (data: any) => void, isLoading: bo
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Seu CurrÃ­culo (PDF/Imagem)</label>
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Seu Currículo (PDF/Imagem)</label>
                             <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-50 transition-colors relative">
                                 <input
                                     type="file"
@@ -661,7 +661,7 @@ const OnboardingScreen: React.FC<{ onAnalyze: (data: any) => void, isLoading: bo
                             </>
                         ) : (
                             <>
-                                Gerar AnÃ¡lise Completa <ArrowRight className="w-5 h-5" />
+                                Gerar Análise Completa <ArrowRight className="w-5 h-5" />
                             </>
                         )}
                     </button>
@@ -683,14 +683,14 @@ const SoftSkillsScreen: React.FC<{ plan: SoftSkillTask[], onBack: () => void }> 
                     <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mb-4">
                         <MessageSquare className="w-8 h-8 text-slate-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-800">Plano IndisponÃ­vel</h3>
-                    <p className="text-slate-500 mt-2 text-sm">Realize a anÃ¡lise do currÃ­culo novamente para gerar seu plano.</p>
+                    <h3 className="text-xl font-bold text-slate-800">Plano Indisponível</h3>
+                    <p className="text-slate-500 mt-2 text-sm">Realize a análise do currículo novamente para gerar seu plano.</p>
                 </div>
             ) : (
                 <div className="p-6 space-y-6">
                     <div className="bg-indigo-600 rounded-3xl p-6 text-white shadow-lg shadow-indigo-200">
                         <h2 className="text-2xl font-bold mb-2">Desafio 7 Dias</h2>
-                        <p className="text-indigo-200 text-sm">Pequenas aÃ§Ãµes diÃ¡rias para desenvolver inteligÃªncia emocional e comunicaÃ§Ã£o.</p>
+                        <p className="text-indigo-200 text-sm">Pequenas ações diárias para desenvolver inteligência emocional e comunicação.</p>
                     </div>
 
                     <div className="space-y-4">
@@ -731,7 +731,7 @@ const SoftSkillsScreen: React.FC<{ plan: SoftSkillTask[], onBack: () => void }> 
                                                 </div>
                                                 <div className="flex gap-3 text-xs text-slate-600">
                                                     <PenTool className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                                                    <span><strong>ReflexÃ£o:</strong> {task.reflectionQuestion}</span>
+                                                    <span><strong>Reflexão:</strong> {task.reflectionQuestion}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -769,7 +769,7 @@ const InterviewScreen: React.FC<{ userProfile: UserProfile, onBack: () => void }
             <div className="flex px-6 border-b border-slate-200 bg-white sticky top-[72px] z-30">
                 {[
                     { id: 'behavioral', label: 'Comportamental' },
-                    { id: 'technical', label: 'TÃ©cnica' },
+                    { id: 'technical', label: 'Técnica' },
                     { id: 'case-study', label: 'Estudo de Caso' }
                 ].map(t => (
                     <button
@@ -824,7 +824,7 @@ const InterviewScreen: React.FC<{ userProfile: UserProfile, onBack: () => void }
 
                                         <div className="space-y-4">
                                             <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-100">
-                                                <h4 className="font-bold text-yellow-800 text-sm mb-1">O CenÃ¡rio Real</h4>
+                                                <h4 className="font-bold text-yellow-800 text-sm mb-1">O Cenário Real</h4>
                                                 <p className="text-sm text-yellow-900 leading-relaxed">{study.scenario}</p>
                                                 <p className="text-xs text-yellow-700 mt-2 italic font-medium">Desafio: {study.challenge}</p>
                                             </div>
@@ -911,9 +911,9 @@ const SalaryScreen: React.FC<{ userProfile: UserProfile, onBack: () => void }> =
                     <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-6 text-white shadow-lg shadow-orange-200">
                         <div className="flex justify-between items-start mb-6">
                             <div>
-                                <p className="text-amber-100 text-xs font-bold uppercase tracking-wide">MÃ©dia de Mercado</p>
+                                <p className="text-amber-100 text-xs font-bold uppercase tracking-wide">Média de Mercado</p>
                                 <h2 className="text-3xl font-extrabold">R$ {data.pleno.toLocaleString('pt-BR')}</h2>
-                                <p className="text-white/80 text-sm">Para nÃ­vel Pleno</p>
+                                <p className="text-white/80 text-sm">Para nível Pleno</p>
                             </div>
                             <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
                                 <DollarSign className="w-8 h-8 text-white" />
@@ -922,7 +922,7 @@ const SalaryScreen: React.FC<{ userProfile: UserProfile, onBack: () => void }> =
 
                         <div className="grid grid-cols-3 gap-2">
                             <div className="bg-black/10 rounded-xl p-3 text-center">
-                                <p className="text-[10px] text-amber-100 font-bold uppercase mb-1">JÃºnior</p>
+                                <p className="text-[10px] text-amber-100 font-bold uppercase mb-1">Júnior</p>
                                 <p className="text-sm font-bold">R${(data.junior / 1000).toFixed(1)}k</p>
                             </div>
                             <div className="bg-white/20 rounded-xl p-3 text-center border border-white/20">
@@ -930,7 +930,7 @@ const SalaryScreen: React.FC<{ userProfile: UserProfile, onBack: () => void }> =
                                 <p className="text-sm font-bold">R${(data.pleno / 1000).toFixed(1)}k</p>
                             </div>
                             <div className="bg-black/10 rounded-xl p-3 text-center">
-                                <p className="text-[10px] text-amber-100 font-bold uppercase mb-1">SÃªnior</p>
+                                <p className="text-[10px] text-amber-100 font-bold uppercase mb-1">Sênior</p>
                                 <p className="text-sm font-bold">R${(data.senior / 1000).toFixed(1)}k</p>
                             </div>
                         </div>
@@ -949,7 +949,7 @@ const SalaryScreen: React.FC<{ userProfile: UserProfile, onBack: () => void }> =
                                     <Tooltip
                                         cursor={{ fill: 'transparent' }}
                                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                        formatter={(value: any) => [`R$ ${value}`, 'MÃ©dia']}
+                                        formatter={(value: any) => [`R$ ${value}`, 'Média']}
                                     />
                                     <Bar dataKey="average" fill="#f59e0b" radius={[0, 4, 4, 0]} barSize={20}>
                                         {data.regionalData?.map((entry, index) => (
@@ -977,7 +977,7 @@ const SalaryScreen: React.FC<{ userProfile: UserProfile, onBack: () => void }> =
                             <div className="flex gap-4">
                                 <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">2</div>
                                 <div>
-                                    <h4 className="font-bold text-slate-800 text-sm mb-1">Argumento SecundÃ¡rio</h4>
+                                    <h4 className="font-bold text-slate-800 text-sm mb-1">Argumento Secundário</h4>
                                     <p className="text-xs text-slate-500 leading-relaxed">{data.negotiationStrategy.secondaryArgument}</p>
                                 </div>
                             </div>
@@ -1012,24 +1012,24 @@ const LandingScreen: React.FC<{ onStart: () => void; onLogin: () => void }> = ({
             <section className="px-6 pt-12 pb-16 flex flex-col items-center text-center max-w-4xl mx-auto">
                 <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full mb-8 border border-emerald-100 shadow-sm">
                     <TrendingUp className="w-4 h-4" />
-                    <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase">MÃ©todo Validado por Headhunters</span>
+                    <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase">Método Validado por Headhunters</span>
                 </div>
 
                 <h1 className="text-5xl md:text-7xl font-extrabold text-[#0f172a] leading-[1.1] mb-6 tracking-tight">
                     Domine o Jogo <br />
                     <span className="block mt-2">da</span>
-                    <span className="text-[#009c3b]">ContrataÃ§Ã£o.</span>
+                    <span className="text-[#009c3b]">Contratação.</span>
                 </h1>
 
                 <p className="text-slate-500 text-lg md:text-xl mb-10 max-w-2xl leading-relaxed font-medium">
-                    A Ãºnica plataforma que une InteligÃªncia Artificial avanÃ§ada com Mentoria Humana de Elite para garantir sua prÃ³xima vaga.
+                    A única plataforma que une Inteligência Artificial avançada com Mentoria Humana de Elite para garantir sua próxima vaga.
                 </p>
 
                 <button
                     onClick={onStart}
                     className="w-full max-w-md bg-[#009c3b] hover:bg-emerald-700 text-white font-extrabold text-lg py-5 rounded-xl shadow-xl shadow-emerald-500/20 transform transition hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-wide"
                 >
-                    Criar Conta GrÃ¡tis
+                    Criar Conta Grátis
                     <ArrowRight className="w-6 h-6" />
                 </button>
 
@@ -1051,12 +1051,12 @@ const LandingScreen: React.FC<{ onStart: () => void; onLogin: () => void }> = ({
                     </div>
 
                     <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
-                        Acesso Direto Ã  <br />
+                        Acesso Direto à <br />
                         <span className="text-[#818cf8]">Elite do Mercado</span>
                     </h2>
 
                     <p className="text-slate-300 text-lg mb-12 max-w-2xl mx-auto leading-relaxed">
-                        NÃ£o dependa apenas da sorte. Participe de sessÃµes quinzenais ao vivo com Diretores e Especialistas reais. Tire dÃºvidas, faÃ§a networking e aprenda o que a IA nÃ£o te conta.
+                        Não dependa apenas da sorte. Participe de sessões quinzenais ao vivo com Diretores e Especialistas reais. Tire dúvidas, faça networking e aprenda o que a IA não te conta.
                     </p>
 
                     {/* Live Session Card Simulation */}
@@ -1074,8 +1074,8 @@ const LandingScreen: React.FC<{ onStart: () => void; onLogin: () => void }> = ({
                         </div>
 
                         <div className="bg-[#0f172a] rounded-xl p-4 mb-6 border border-slate-700">
-                            <p className="text-slate-400 text-[10px] font-bold uppercase mb-1">Tema da SessÃ£o:</p>
-                            <p className="text-white font-bold text-sm leading-snug">"Como negociar salÃ¡rio acima do teto"</p>
+                            <p className="text-slate-400 text-[10px] font-bold uppercase mb-1">Tema da Sessão:</p>
+                            <p className="text-white font-bold text-sm leading-snug">"Como negociar salário acima do teto"</p>
                         </div>
 
                         <button className="w-full bg-[#6366f1] hover:bg-[#4f46e5] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-indigo-500/20">
@@ -1092,7 +1092,7 @@ const LandingScreen: React.FC<{ onStart: () => void; onLogin: () => void }> = ({
                     <div className="text-center mb-16">
                         <h2 className="text-4xl font-extrabold text-[#0f172a] mb-4">Seu Arsenal Completo</h2>
                         <p className="text-slate-500 text-lg max-w-2xl mx-auto leading-relaxed">
-                            NÃ£o entregamos apenas "dicas". Entregamos um ecossistema completo de ferramentas para sua aprovaÃ§Ã£o.
+                            Não entregamos apenas "dicas". Entregamos um ecossistema completo de ferramentas para sua aprovação.
                         </p>
                     </div>
 
@@ -1104,7 +1104,7 @@ const LandingScreen: React.FC<{ onStart: () => void; onLogin: () => void }> = ({
                             </div>
                             <h3 className="text-xl font-bold text-[#0f172a] mb-3">Mentoria Quinzenal Ao Vivo</h3>
                             <p className="text-slate-500 leading-relaxed text-sm">
-                                ConexÃ£o direta com quem contrata. EstratÃ©gias de campo de batalha, networking e tira-dÃºvidas em tempo real.
+                                Conexão direta com quem contrata. Estratégias de campo de batalha, networking e tira-dúvidas em tempo real.
                             </p>
                         </div>
 
@@ -1115,7 +1115,7 @@ const LandingScreen: React.FC<{ onStart: () => void; onLogin: () => void }> = ({
                             </div>
                             <h3 className="text-xl font-bold text-[#0f172a] mb-3">Coaching de Soft Skills</h3>
                             <p className="text-slate-500 leading-relaxed text-sm">
-                                Habilidades tÃ©cnicas contratam, comportamentais demitem. Nosso plano de 7 dias blinda sua inteligÃªncia emocional.
+                                Habilidades técnicas contratam, comportamentais demitem. Nosso plano de 7 dias blinda sua inteligência emocional.
                             </p>
                         </div>
 
@@ -1126,7 +1126,7 @@ const LandingScreen: React.FC<{ onStart: () => void; onLogin: () => void }> = ({
                             </div>
                             <h3 className="text-xl font-bold text-[#0f172a] mb-3">Otimizador de CV com IA</h3>
                             <p className="text-slate-500 leading-relaxed text-sm">
-                                Nossa IA reescreve seu currÃ­culo com as palavras-chave exatas que os sistemas de triagem procuram. Seja visto.
+                                Nossa IA reescreve seu currículo com as palavras-chave exatas que os sistemas de triagem procuram. Seja visto.
                             </p>
                         </div>
 
@@ -1137,7 +1137,7 @@ const LandingScreen: React.FC<{ onStart: () => void; onLogin: () => void }> = ({
                             </div>
                             <h3 className="text-xl font-bold text-[#0f172a] mb-3">Devolutiva Completa do DISC</h3>
                             <p className="text-slate-500 leading-relaxed text-sm">
-                                Entenda seu perfil comportamental. Baixe o relatÃ³rio completo e saiba vender sua personalidade na entrevista.
+                                Entenda seu perfil comportamental. Baixe o relatório completo e saiba vender sua personalidade na entrevista.
                             </p>
                         </div>
 
@@ -1148,18 +1148,18 @@ const LandingScreen: React.FC<{ onStart: () => void; onLogin: () => void }> = ({
                             </div>
                             <h3 className="text-xl font-bold text-[#0f172a] mb-3">Simulador de Entrevista</h3>
                             <p className="text-slate-500 leading-relaxed text-sm">
-                                Treine com perguntas reais (tÃ©cnicas e comportamentais). Receba feedback e sugestÃµes de Dress Code para impressionar.
+                                Treine com perguntas reais (técnicas e comportamentais). Receba feedback e sugestões de Dress Code para impressionar.
                             </p>
                         </div>
 
-                        {/* Card 6: Raio-X SalÃ¡rio */}
+                        {/* Card 6: Raio-X Salário */}
                         <div className="bg-white p-8 rounded-[32px] shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 md:col-span-2 lg:col-span-1">
                             <div className="w-14 h-14 bg-[#fef3c7] rounded-2xl flex items-center justify-center text-[#d97706] mb-6">
                                 <DollarSign className="w-7 h-7" />
                             </div>
-                            <h3 className="text-xl font-bold text-[#0f172a] mb-3">Raio-X SalÃ¡rio</h3>
+                            <h3 className="text-xl font-bold text-[#0f172a] mb-3">Raio-X Salário</h3>
                             <p className="text-slate-500 leading-relaxed text-sm">
-                                Descubra faixas salariais por nÃ­vel (JÃºnior, Pleno, SÃªnior) e regiÃµes do Brasil. Negocie com dados reais do mercado.
+                                Descubra faixas salariais por nível (Júnior, Pleno, Sênior) e regiões do Brasil. Negocie com dados reais do mercado.
                             </p>
                         </div>
                     </div>
@@ -1170,13 +1170,13 @@ const LandingScreen: React.FC<{ onStart: () => void; onLogin: () => void }> = ({
             <section className="px-6 py-20 text-center bg-white">
                 <div className="max-w-2xl mx-auto">
                     <h2 className="text-3xl md:text-4xl font-extrabold text-[#0f172a] mb-8">
-                        Sua carreira nÃ£o pode esperar.
+                        Sua carreira não pode esperar.
                     </h2>
                     <button
                         onClick={onStart}
                         className="w-full bg-[#009c3b] hover:bg-emerald-700 text-white font-extrabold text-lg py-5 rounded-xl shadow-xl shadow-emerald-500/20 transform transition hover:-translate-y-1 active:scale-[0.98] uppercase tracking-wide"
                     >
-                        ComeÃ§ar Agora
+                        Começar Agora
                     </button>
                     <p className="mt-6 text-xs text-slate-400">Â© 2025 SkillQuest Brazil. Todos os direitos reservados.</p>
                 </div>
@@ -1210,7 +1210,7 @@ const ServicesScreen: React.FC<{
             bg: 'bg-gradient-to-br from-blue-500 to-blue-600',
             desc: 'IA reescreve seu resumo e destaca skills.',
             locked: false,
-            tag: 'GRÃTIS'
+            tag: 'GRÁTIS'
         },
         {
             id: Screen.DISC_RESULT,
@@ -1218,7 +1218,7 @@ const ServicesScreen: React.FC<{
             icon: BrainCircuit,
             color: 'text-white',
             bg: 'bg-gradient-to-br from-purple-500 to-indigo-600',
-            desc: 'Baixe o PDF com sua anÃ¡lise comportamental.',
+            desc: 'Baixe o PDF com sua análise comportamental.',
             locked: false, // Access to view logic, logic handles lock
             tag: 'PREMIUM'
         },
@@ -1228,7 +1228,7 @@ const ServicesScreen: React.FC<{
             icon: MessageSquare,
             color: 'text-white',
             bg: 'bg-gradient-to-br from-pink-500 to-rose-500',
-            desc: 'Plano diÃ¡rio para evoluir inteligÃªncia emocional.',
+            desc: 'Plano diário para evoluir inteligência emocional.',
             locked: !isPremium,
             tag: 'PREMIUM'
         },
@@ -1248,7 +1248,7 @@ const ServicesScreen: React.FC<{
             icon: DollarSign,
             color: 'text-white',
             bg: 'bg-gradient-to-br from-amber-500 to-orange-500',
-            desc: 'Comparativo regional e estratÃ©gia de negociaÃ§Ã£o.',
+            desc: 'Comparativo regional e estratégia de negociação.',
             locked: !isPremium,
             tag: 'PREMIUM'
         },
@@ -1276,7 +1276,7 @@ const ServicesScreen: React.FC<{
                         Acelere sua Carreira
                     </h1>
                     <p className="text-slate-400 text-xs max-w-xs leading-relaxed">
-                        Ferramentas de IA avanÃ§adas para te colocar no topo da lista dos recrutadores.
+                        Ferramentas de IA avançadas para te colocar no topo da lista dos recrutadores.
                     </p>
 
                     {/* Premium Badge - Inside Header */}
@@ -1396,8 +1396,8 @@ const DiscResultScreen: React.FC<{
                 <div className="w-16 h-16 bg-slate-200 rounded-full mb-4 flex items-center justify-center">
                     <BrainCircuit className="w-8 h-8 text-slate-400" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-900 mb-2">Teste nÃ£o realizado</h2>
-                <p className="text-slate-500 mb-6 text-sm">Realize o teste DISC no Dashboard para acessar seu relatÃ³rio.</p>
+                <h2 className="text-xl font-bold text-slate-900 mb-2">Teste não realizado</h2>
+                <p className="text-slate-500 mb-6 text-sm">Realize o teste DISC no Dashboard para acessar seu relatório.</p>
                 <button onClick={onBack} className="text-emerald-600 font-bold">Voltar</button>
             </div>
         );
@@ -1405,7 +1405,7 @@ const DiscResultScreen: React.FC<{
 
     return (
         <div className="min-h-screen bg-slate-50 pb-24">
-            <Header title="RelatÃ³rio DISC" onBack={onBack} />
+            <Header title="Relatório DISC" onBack={onBack} />
             <div className="p-6">
 
                 {/* Profile Header */}
@@ -1418,11 +1418,11 @@ const DiscResultScreen: React.FC<{
 
                 {/* Score Chart - AVAILABLE TO ALL */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
-                    <h4 className="font-bold text-slate-800 mb-4">Sua DistribuiÃ§Ã£o de Energia</h4>
+                    <h4 className="font-bold text-slate-800 mb-4">Sua Distribuição de Energia</h4>
                     <div className="space-y-4">
                         {[
-                            { label: 'DominÃ¢ncia (D)', key: 'D', color: 'bg-red-500', val: discResult.scores.D },
-                            { label: 'InfluÃªncia (I)', key: 'I', color: 'bg-yellow-400', val: discResult.scores.I },
+                            { label: 'Dominância (D)', key: 'D', color: 'bg-red-500', val: discResult.scores.D },
+                            { label: 'Influência (I)', key: 'I', color: 'bg-yellow-400', val: discResult.scores.I },
                             { label: 'Estabilidade (S)', key: 'S', color: 'bg-green-500', val: discResult.scores.S },
                             { label: 'Conformidade (C)', key: 'C', color: 'bg-blue-500', val: discResult.scores.C },
                         ].map((item) => (
@@ -1446,14 +1446,14 @@ const DiscResultScreen: React.FC<{
                             <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-3">
                                 <Lock className="w-6 h-6 text-indigo-600" />
                             </div>
-                            <h3 className="font-bold text-slate-900 mb-1">AnÃ¡lise Comportamental Completa</h3>
+                            <h3 className="font-bold text-slate-900 mb-1">Análise Comportamental Completa</h3>
                             <p className="text-sm text-slate-500 mb-4">Descubra seus pontos fortes, cegos e como se comunicar na entrevista.</p>
                             <button
                                 onClick={onUpgrade}
                                 className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
                             >
                                 <Crown className="w-4 h-4" />
-                                Desbloquear RelatÃ³rio Premium
+                                Desbloquear Relatório Premium
                             </button>
                         </div>
                         {/* Fake Content Background */}
@@ -1472,7 +1472,7 @@ const DiscResultScreen: React.FC<{
                         {loading ? (
                             <div className="py-12 flex flex-col items-center justify-center">
                                 <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-2" />
-                                <p className="text-xs text-slate-400">Gerando anÃ¡lise profunda...</p>
+                                <p className="text-xs text-slate-400">Gerando análise profunda...</p>
                             </div>
                         ) : fullData ? (
                             <div className="space-y-6 animate-fadeIn">
@@ -1495,7 +1495,7 @@ const DiscResultScreen: React.FC<{
                                 {/* Blind Spots */}
                                 <div className="bg-orange-50 border border-orange-100 p-5 rounded-2xl">
                                     <h4 className="font-bold text-orange-800 mb-3 flex items-center gap-2">
-                                        <AlertCircle className="w-5 h-5" /> Pontos de AtenÃ§Ã£o
+                                        <AlertCircle className="w-5 h-5" /> Pontos de Atenção
                                     </h4>
                                     <ul className="space-y-2">
                                         {fullData.blindSpots?.map((s, i) => (
@@ -1509,7 +1509,7 @@ const DiscResultScreen: React.FC<{
 
                                 {/* Communication Tip */}
                                 <div className="bg-white p-5 rounded-2xl border-l-4 border-indigo-500 shadow-sm">
-                                    <h4 className="font-bold text-indigo-900 text-sm mb-1 uppercase tracking-wide">Dica de ComunicaÃ§Ã£o</h4>
+                                    <h4 className="font-bold text-indigo-900 text-sm mb-1 uppercase tracking-wide">Dica de Comunicação</h4>
                                     <p className="text-slate-600 text-sm italic">"{fullData.communicationTip || 'Carregando dica...'}"</p>
                                 </div>
 
@@ -1520,9 +1520,9 @@ const DiscResultScreen: React.FC<{
                                         className="w-full bg-slate-900 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors shadow-xl"
                                     >
                                         <Download className="w-5 h-5" />
-                                        Baixar RelatÃ³rio PDF (15 PÃ¡ginas)
+                                        Baixar Relatório PDF (15 Páginas)
                                     </button>
-                                    <p className="text-center text-[10px] text-slate-400 mt-2">Inclui grÃ¡ficos detalhados e mapa de competÃªncias.</p>
+                                    <p className="text-center text-[10px] text-slate-400 mt-2">Inclui gráficos detalhados e mapa de competências.</p>
                                 </div>
                             </div>
                         ) : null}
@@ -1542,7 +1542,7 @@ const DashboardScreen: React.FC<{
     onViewDisc: () => void,
     userProfile: UserProfile
 }> = ({ result, onNavigate, onSkillClick, discResult, onStartDisc, onViewDisc, userProfile }) => {
-    // Se nÃ£o houver resultado de anÃ¡lise, mostrar tela de boas-vindas/inÃ­cio
+    // Se não houver resultado de análise, mostrar tela de boas-vindas/início
     if (!result) {
         return (
             <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 relative">
@@ -1573,7 +1573,7 @@ const DashboardScreen: React.FC<{
                         className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200 transition-all flex items-center justify-center gap-2"
                     >
                         <FileText className="w-5 h-5" />
-                        Fazer Nova AnÃ¡lise
+                        Fazer Nova Análise
                     </button>
                 </div>
             </div>
@@ -1586,8 +1586,8 @@ const DashboardScreen: React.FC<{
             <div className="bg-white px-6 pt-12 pb-6 rounded-b-[40px] shadow-sm mb-6">
                 <div className="flex justify-between items-start mb-6">
                     <div>
-                        <p className="text-slate-400 text-sm font-medium">OlÃ¡, {result.extractedName?.split(' ')[0] || 'Candidato'}</p>
-                        <h1 className="text-2xl font-bold text-slate-900">Seu DiagnÃ³stico</h1>
+                        <p className="text-slate-400 text-sm font-medium">Olá, {result.extractedName?.split(' ')[0] || 'Candidato'}</p>
+                        <h1 className="text-2xl font-bold text-slate-900">Seu Diagnóstico</h1>
                     </div>
                     <div className="flex gap-3">
                         {userProfile.email === 'thailer.mathias88@gmail.com' && (
@@ -1646,7 +1646,7 @@ const DashboardScreen: React.FC<{
                                 <div>
                                     <h4 className="text-white font-bold text-lg mb-1">Descubra seu Perfil</h4>
                                     <p className="text-indigo-100 text-xs max-w-[200px] mb-3">
-                                        FaÃ§a o teste DISC gratuito e entenda suas soft skills.
+                                        Faça o teste DISC gratuito e entenda suas soft skills.
                                     </p>
                                     <span className="inline-flex items-center gap-1 bg-white text-indigo-600 text-[10px] font-bold px-2 py-1 rounded-md">
                                         <Play className="w-3 h-3 fill-current" /> COMEÃ‡AR TESTE
@@ -1690,7 +1690,7 @@ const DashboardScreen: React.FC<{
                 {/* Roadmap Section */}
                 <div>
                     <h3 className="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
-                        <Map className="w-5 h-5 text-emerald-500" /> PrÃ³ximos Passos
+                        <Map className="w-5 h-5 text-emerald-500" /> Próximos Passos
                     </h3>
                     <div className="space-y-4">
                         {result.roadmap.map((step, idx) => (
