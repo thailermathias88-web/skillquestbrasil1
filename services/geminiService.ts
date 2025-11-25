@@ -671,3 +671,65 @@ export const evaluateInterviewAnswer = async (question: string, answer: string):
     return { score: 0, feedback: "Não foi possível avaliar sua resposta.", improvement: "Verifique sua conexão e tente novamente." };
   }
 };
+
+export const generateOptimizedCVDocument = async (
+  cvBase64: string,
+  cvMimeType: string,
+  targetRole: string
+): Promise<any> => {
+  const model = "gemini-2.5-flash";
+  const prompt = `
+    You are an expert CV writer.
+    Task: Rewrite the attached CV to be perfectly optimized for the role of: "${targetRole}".
+    
+    Guidelines:
+    1. Keep the candidate's real facts (dates, companies, education). Do NOT invent experiences.
+    2. Rewrite the "Summary" to be punchy and role-aligned.
+    3. Rewrite bullet points in "Experience" to focus on achievements and keywords for "${targetRole}".
+    4. Organize "Skills" logically.
+    
+    Return a JSON structure ready for PDF generation (PT-BR):
+    {
+      "fullName": "Name",
+      "contactInfo": ["Email", "Phone", "LinkedIn/City"],
+      "summary": "Optimized summary text...",
+      "experience": [
+        { 
+          "role": "Job Title",
+          "company": "Company Name",
+          "period": "Dates",
+          "achievements": ["Action verb + context + result", "Another bullet point"]
+        }
+      ],
+      "education": [
+        { "degree": "Degree", "institution": "School", "year": "Year" }
+      ],
+      "skills": ["Skill 1", "Skill 2", "Skill 3", "Skill 4", "Skill 5", "Skill 6"]
+    }
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: model,
+      contents: {
+        parts: [
+          {
+            inlineData: {
+              mimeType: cvMimeType,
+              data: cvBase64
+            }
+          },
+          { text: prompt }
+        ]
+      },
+      config: {
+        responseMimeType: "application/json"
+      }
+    });
+
+    return JSON.parse(response.text || "{}");
+  } catch (e) {
+    console.error("CV Generation Error:", e);
+    return null;
+  }
+};
