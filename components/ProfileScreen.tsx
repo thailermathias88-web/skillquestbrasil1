@@ -60,14 +60,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-24 font-sans">
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-28 font-sans">
             {/* Header com Gradiente */}
             <div className="relative bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 rounded-b-[3rem] shadow-2xl overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-full opacity-20">
                     <div className="absolute top-[-50%] left-[-20%] w-[150%] h-[200%] bg-gradient-to-br from-white to-transparent rounded-full blur-3xl transform rotate-12"></div>
                 </div>
 
-                <div className="relative z-10 p-6 pb-20">
+                <div className="relative z-10 p-4 pb-16">
                     <button
                         onClick={onBack}
                         className="p-2 bg-white/20 hover:bg-white/30 rounded-full text-white transition-all backdrop-blur-sm mb-4"
@@ -75,7 +75,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                         <ArrowLeft className="w-6 h-6" />
                     </button>
 
-                    <div className="text-white text-center mt-8">
+                    <div className="text-white text-center mt-6">
                         <h1 className="text-2xl font-bold mb-1">Perfil Profissional</h1>
                         <p className="text-blue-100 text-sm opacity-90">Gerencie suas informações</p>
                     </div>
@@ -83,12 +83,12 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </div>
 
             {/* Avatar e Info Principal */}
-            <div className="relative px-6 -mt-16 mb-6">
-                <div className="bg-white rounded-3xl shadow-xl p-6 border border-slate-100">
-                    <div className="flex items-start gap-4">
+            <div className="relative px-4 -mt-12 mb-6">
+                <div className="bg-white rounded-3xl shadow-xl p-4 border border-slate-100">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                         {/* Avatar */}
                         <div className="relative group flex-shrink-0">
-                            <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gradient-to-br from-blue-100 to-indigo-100">
+                            <div className="w-20 h-20 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gradient-to-br from-blue-100 to-indigo-100">
                                 {userProfile.avatarBase64 ? (
                                     <img
                                         src={`data:${userProfile.avatarMimeType};base64,${userProfile.avatarBase64}`}
@@ -97,7 +97,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-500 text-white">
-                                        <span className="text-3xl font-bold">{userProfile.name?.charAt(0) || 'U'}</span>
+                                        <span className="text-2xl font-bold">{userProfile.name?.charAt(0) || 'U'}</span>
                                     </div>
                                 )}
                             </div>
@@ -117,20 +117,20 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                         </div>
 
                         {/* Nome e Rating */}
-                        <div className="flex-1">
-                            <h2 className="text-xl font-bold text-slate-900 mb-1">
+                        <div className="flex-1 text-center sm:text-left">
+                            <h2 className="text-lg font-bold text-slate-900 mb-1">
                                 {userProfile.name || 'Usuário'}
                             </h2>
                             <p className="text-sm text-slate-600 mb-2">
                                 {userProfile.role || 'Profissional'}
                             </p>
-                            <div className="flex items-center gap-1.5 mb-3">
+                            <div className="flex items-center justify-center sm:justify-start gap-1.5 mb-3">
                                 <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                                 <span className="font-bold text-lg text-slate-900">4.5</span>
                             </div>
 
                             {/* Social Links */}
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 justify-center sm:justify-start flex-wrap">
                                 <button
                                     onClick={() => {
                                         const url = prompt('Digite a URL do seu LinkedIn:', userProfile.socialLinks?.linkedin || '');
@@ -184,7 +184,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 </div>
             </div>
 
-            <div className="px-6 space-y-6">
+            <div className="px-4 space-y-5">
                 {/* Seção Minha Carreira */}
                 <div>
                     <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
@@ -193,48 +193,46 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                     </h2>
 
                     {/* Trabalho Independente */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-3 hover:shadow-md transition-shadow">
-                        <div className="flex items-start gap-4 mb-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                                <Users className="w-6 h-6 text-white" />
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 mb-3 hover:shadow-md transition-shadow">
+                        <div className="flex items-start gap-3 mb-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                <Users className="w-5 h-5 text-white" />
                             </div>
-                            <div className="flex-1">
-                                <h3 className="font-bold text-slate-900 mb-1">Trabalho Independente</h3>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-slate-900 text-sm mb-1">Trabalho Independente</h3>
                                 <p className="text-xs text-slate-500 mb-2">Experiência</p>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="flex items-center gap-2">
+                                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-500"
                                             style={{ width: '85%' }}
                                         ></div>
                                     </div>
-                                    <span className="text-sm font-bold text-slate-700">85%</span>
+                                    <span className="text-xs font-bold text-slate-700 min-w-[32px] text-right">85%</span>
                                 </div>
                             </div>
-                            <ChevronRight className="w-5 h-5 text-slate-300 flex-shrink-0 mt-2" />
                         </div>
                     </div>
 
                     {/* Trabalho In-house */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-shadow">
-                        <div className="flex items-start gap-4 mb-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                                <Briefcase className="w-6 h-6 text-white" />
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 hover:shadow-md transition-shadow">
+                        <div className="flex items-start gap-3 mb-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                                <Briefcase className="w-5 h-5 text-white" />
                             </div>
-                            <div className="flex-1">
-                                <h3 className="font-bold text-slate-900 mb-1">Trabalho In-house</h3>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-slate-900 text-sm mb-1">Trabalho In-house</h3>
                                 <p className="text-xs text-slate-500 mb-2">Experiência</p>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="flex items-center gap-2">
+                                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-gradient-to-r from-orange-400 to-red-500 rounded-full transition-all duration-500"
                                             style={{ width: '30%' }}
                                         ></div>
                                     </div>
-                                    <span className="text-sm font-bold text-slate-700">30%</span>
+                                    <span className="text-xs font-bold text-slate-700 min-w-[32px] text-right">30%</span>
                                 </div>
                             </div>
-                            <ChevronRight className="w-5 h-5 text-slate-300 flex-shrink-0 mt-2" />
                         </div>
                     </div>
                 </div>
@@ -245,51 +243,51 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                         <Award className="w-5 h-5 text-purple-600" />
                         Habilidades
                     </h2>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                         {topSkills.map((skill, index) => {
                             const { Icon, color, bg } = getSkillIcon(index);
                             return (
                                 <div
                                     key={index}
-                                    className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center hover:shadow-lg hover:scale-105 transition-all duration-300"
+                                    className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center hover:shadow-lg hover:scale-105 transition-all duration-300"
                                 >
                                     {/* Circular Progress */}
-                                    <div className="relative w-24 h-24 mb-4">
+                                    <div className="relative w-20 h-20 mb-3">
                                         <svg className="w-full h-full transform -rotate-90">
                                             <circle
-                                                cx="48"
-                                                cy="48"
-                                                r="42"
+                                                cx="40"
+                                                cy="40"
+                                                r="36"
                                                 stroke="currentColor"
-                                                strokeWidth="6"
+                                                strokeWidth="5"
                                                 fill="transparent"
                                                 className="text-slate-100"
                                             />
                                             <circle
-                                                cx="48"
-                                                cy="48"
-                                                r="42"
+                                                cx="40"
+                                                cy="40"
+                                                r="36"
                                                 stroke="currentColor"
-                                                strokeWidth="6"
+                                                strokeWidth="5"
                                                 fill="transparent"
-                                                strokeDasharray={264}
-                                                strokeDashoffset={264 - (264 * skill.score) / 100}
+                                                strokeDasharray={226}
+                                                strokeDashoffset={226 - (226 * skill.score) / 100}
                                                 className={`${index % 4 === 0 ? 'text-blue-500' :
-                                                        index % 4 === 1 ? 'text-pink-500' :
-                                                            index % 4 === 2 ? 'text-orange-500' :
-                                                                'text-purple-500'
+                                                    index % 4 === 1 ? 'text-pink-500' :
+                                                        index % 4 === 2 ? 'text-orange-500' :
+                                                            'text-purple-500'
                                                     } transition-all duration-1000 ease-out`}
                                                 strokeLinecap="round"
                                             />
                                         </svg>
-                                        <div className={`absolute inset-0 flex items-center justify-center ${bg} rounded-full m-3`}>
-                                            <Icon className={`w-8 h-8 ${color}`} />
+                                        <div className={`absolute inset-0 flex items-center justify-center ${bg} rounded-full m-2.5`}>
+                                            <Icon className={`w-6 h-6 ${color}`} />
                                         </div>
                                     </div>
-                                    <h3 className="font-bold text-slate-800 text-sm mb-2 line-clamp-2 min-h-[40px] flex items-center">
+                                    <h3 className="font-bold text-slate-800 text-xs mb-1.5 line-clamp-2 min-h-[32px] flex items-center">
                                         {skill.name}
                                     </h3>
-                                    <span className="text-2xl font-black text-slate-900">{skill.score}%</span>
+                                    <span className="text-xl font-black text-slate-900">{skill.score}%</span>
                                 </div>
                             );
                         })}
@@ -305,3 +303,5 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         </div>
     );
 };
+
+// Force reload
