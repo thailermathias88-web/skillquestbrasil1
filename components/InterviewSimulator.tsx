@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Play, Square, Volume2, AlertCircle, CheckCircle, Loader2, ChevronLeft, RefreshCw, Keyboard, Send, Clock, Star } from 'lucide-react';
+import { Mic, MicOff, ChevronLeft, RefreshCw, Send, Clock, Star, Sparkles, Trophy, MessageSquare, CheckCircle2 } from 'lucide-react';
 import { generateInterviewQuestion, evaluateInterviewAnswer } from '../services/geminiService';
 import { UserProfile } from '../types';
 
@@ -8,7 +8,7 @@ interface InterviewSimulatorProps {
     onBack: () => void;
 }
 
-type GameState = 'intro' | 'generating' | 'speaking_question' | 'listening' | 'processing' | 'feedback' | 'finished';
+type GameState = 'intro' | 'generating' | 'listening' | 'processing' | 'feedback' | 'finished';
 
 interface Interaction {
     question: string;
@@ -21,42 +21,38 @@ export const InterviewSimulator: React.FC<InterviewSimulatorProps> = ({ userProf
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [interactions, setInteractions] = useState<Interaction[]>([]);
 
-    // Current Interaction State
     const [currentQuestion, setCurrentQuestion] = useState<string>('');
     const [userAnswer, setUserAnswer] = useState<string>('');
     const [currentFeedback, setCurrentFeedback] = useState<{ score: number, feedback: string, improvement: string } | null>(null);
 
-    // Timer
-    const [timeLeft, setTimeLeft] = useState(180); // 3 minutes
+    const [timeLeft, setTimeLeft] = useState(180);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Error & Fallback States
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [useTextMode, setUseTextMode] = useState(false);
 
-    // Speech Recognition
     const recognitionRef = useRef<any>(null);
     const [isListening, setIsListening] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
-            if (recognitionRef.current) recognitionRef.current.stop();
-            window.speechSynthesis.cancel();
+            if (recognitionRef.current) {
+                try {
+                    recognitionRef.current.stop();
+                } catch (e) { }
+            }
         };
     }, []);
 
-    // Timer Logic
     useEffect(() => {
-        if (gameState === 'listening' && !useTextMode) {
-            startTimer();
-        } else if (gameState === 'listening' && useTextMode) {
+        if (gameState === 'listening') {
             startTimer();
         } else {
             stopTimer();
         }
-    }, [gameState, useTextMode]);
+    }, [gameState]);
 
     const startTimer = () => {
         if (timerRef.current) clearInterval(timerRef.current);
@@ -65,7 +61,7 @@ export const InterviewSimulator: React.FC<InterviewSimulatorProps> = ({ userProf
             setTimeLeft((prev) => {
                 if (prev <= 1) {
                     stopTimer();
-                    submitAnswer(); // Auto-submit on timeout
+                    submitAnswer();
                     return 0;
                 }
                 return prev - 1;
@@ -83,26 +79,6 @@ export const InterviewSimulator: React.FC<InterviewSimulatorProps> = ({ userProf
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // Text to Speech
-    const speak = (text: string) => {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'pt-BR';
-            utterance.rate = 1.1;
-
-            utterance.onstart = () => setGameState('speaking_question');
-            utterance.onend = () => {
-                setGameState('listening');
-                if (!useTextMode) startListening();
-            };
-
-            window.speechSynthesis.speak(utterance);
-        } else {
-            setGameState('listening');
-        }
-    };
-
     const nextQuestion = async () => {
         if (currentQuestionIndex >= 5) {
             setGameState('finished');
@@ -113,104 +89,144 @@ export const InterviewSimulator: React.FC<InterviewSimulatorProps> = ({ userProf
         setUserAnswer('');
         setCurrentFeedback(null);
         setErrorMsg(null);
+        setIsRecording(false);
+        setIsListening(false);
 
         try {
-            // Generate a random topic based on index to ensure variety
             const topics = ["Comportamental", "Técnico", "Situacional", "Soft Skills", "Carreira"];
             const topic = topics[currentQuestionIndex % topics.length];
-
             const data = await generateInterviewQuestion(userProfile.role, topic);
             setCurrentQuestion(data.question);
-            speak(data.question);
+            setGameState('listening');
         } catch (e) {
-            const fallbackQ = "Fale sobre um projeto desafiador que você participou.";
+            const fallbackQ = "Fale sobre um projeto desafiador que você participou e como você lidou com obstáculos.";
             setCurrentQuestion(fallbackQ);
-            speak(fallbackQ);
+            setGameState('listening');
         }
     };
 
     const startListening = () => {
         setErrorMsg(null);
+
         if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            setErrorMsg("Navegador sem suporte a voz.");
+            setErrorMsg("Navegador sem suporte a voz. Use o modo texto.");
             setUseTextMode(true);
             return;
         }
 
         try {
+            // Stop any existing recognition
+            if (recognitionRef.current) {
+                try {
+                    recognitionRef.current.stop();
+                } catch (e) { }
+            }
+
             // @ts-ignore
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             const recognition = new SpeechRecognition();
             recognitionRef.current = recognition;
 
             recognition.lang = 'pt-BR';
-            recognition.continuous = false;
+            recognition.continuous = true;
             recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
 
-            recognition.onstart = () => setIsListening(true);
+            recognition.onstart = () => {
+                setIsListening(true);
+                setIsRecording(true);
+                setErrorMsg(null);
+            };
 
             recognition.onresult = (event: any) => {
+                let interimTranscript = '';
                 let finalTranscript = '';
+
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    const transcript = event.results[i][0].transcript;
                     if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript;
+                        finalTranscript += transcript + ' ';
                     } else {
-                        setUserAnswer(event.results[i][0].transcript);
+                        interimTranscript += transcript;
                     }
                 }
+
                 if (finalTranscript) {
-                    setUserAnswer(finalTranscript);
+                    setUserAnswer(prev => (prev + ' ' + finalTranscript).trim());
+                } else if (interimTranscript) {
+                    // Show interim for real-time feedback
+                    setUserAnswer(prev => (prev + ' ' + interimTranscript).trim());
                 }
             };
 
             recognition.onerror = (event: any) => {
-                console.error("Speech error", event);
+                console.error("Speech error:", event.error);
                 setIsListening(false);
-                if (event.error === 'not-allowed') {
-                    setErrorMsg("Permita o microfone.");
+                setIsRecording(false);
+
+                if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+                    setErrorMsg("Permita o acesso ao microfone.");
                     setUseTextMode(true);
+                } else if (event.error === 'no-speech') {
+                    setErrorMsg("Nenhuma fala detectada. Tente novamente.");
+                } else if (event.error === 'network') {
+                    setErrorMsg("Erro de conexão. Verifique sua internet.");
+                } else {
+                    setErrorMsg("Erro ao reconhecer voz. Tente o modo texto.");
                 }
             };
 
-            recognition.onend = () => setIsListening(false);
+            recognition.onend = () => {
+                setIsListening(false);
+                setIsRecording(false);
+            };
+
             recognition.start();
         } catch (e) {
-            console.error(e);
+            console.error("Recognition error:", e);
+            setErrorMsg("Erro ao iniciar gravação. Use o modo texto.");
             setUseTextMode(true);
+            setIsListening(false);
+            setIsRecording(false);
         }
     };
 
     const stopListening = () => {
         if (recognitionRef.current) {
-            recognitionRef.current.stop();
-            setIsListening(false);
+            try {
+                recognitionRef.current.stop();
+            } catch (e) { }
         }
+        setIsListening(false);
+        setIsRecording(false);
     };
 
     const submitAnswer = async () => {
         stopListening();
         stopTimer();
 
-        if (!userAnswer.trim()) {
-            // If empty answer (timeout or manual click), handle gracefully
-            setUserAnswer("Sem resposta.");
-        }
+        const finalAnswer = userAnswer.trim() || "Sem resposta.";
+        setUserAnswer(finalAnswer);
 
         setGameState('processing');
         try {
-            const evalResult = await evaluateInterviewAnswer(currentQuestion, userAnswer || "O candidato não respondeu.");
+            const evalResult = await evaluateInterviewAnswer(currentQuestion, finalAnswer);
             setCurrentFeedback(evalResult);
 
-            // Save interaction
             const newInteraction = {
                 question: currentQuestion,
-                answer: userAnswer,
+                answer: finalAnswer,
                 feedback: evalResult
             };
             setInteractions([...interactions, newInteraction]);
 
             setGameState('feedback');
         } catch (e) {
+            setCurrentFeedback({
+                score: 0,
+                feedback: "Não foi possível avaliar.",
+                improvement: "Tente novamente."
+            });
             setGameState('feedback');
         }
     };
@@ -224,261 +240,323 @@ export const InterviewSimulator: React.FC<InterviewSimulatorProps> = ({ userProf
         }
     };
 
-    // --- RENDER ---
+    const getScoreColor = (score: number) => {
+        if (score >= 9) return 'from-emerald-500 to-teal-500';
+        if (score >= 7) return 'from-blue-500 to-cyan-500';
+        if (score >= 5) return 'from-amber-500 to-orange-500';
+        return 'from-red-500 to-pink-500';
+    };
+
+    const getScoreLabel = (score: number) => {
+        if (score >= 9) return 'Excepcional';
+        if (score >= 7) return 'Boa';
+        if (score >= 5) return 'Adequada';
+        if (score >= 3) return 'Fraca';
+        return 'Inadequada';
+    };
+
+    const totalScore = interactions.reduce((sum, i) => sum + (i.feedback?.score || 0), 0);
+    const avgScore = interactions.length > 0 ? (totalScore / interactions.length).toFixed(1) : '0.0';
 
     return (
-        <div className="min-h-screen bg-[#0f172a] text-white flex flex-col font-sans">
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-24">
             {/* Header */}
-            <div className="px-4 py-4 flex items-center justify-between bg-[#1e293b]/80 backdrop-blur-md sticky top-0 z-20 border-b border-slate-700">
-                <button onClick={onBack} className="p-2 rounded-full hover:bg-slate-700 transition-colors">
-                    <ChevronLeft className="w-6 h-6 text-slate-300" />
-                </button>
-                <div className="flex flex-col items-center">
-                    <h1 className="font-bold text-base">Simulador IA</h1>
-                    {gameState !== 'intro' && gameState !== 'finished' && (
-                        <span className="text-xs text-emerald-400 font-medium">Pergunta {currentQuestionIndex + 1}/5</span>
-                    )}
-                </div>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-xs font-bold">
-                    AI
+            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-6 pb-12 rounded-b-[3rem] shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl" />
+
+                <div className="relative z-10">
+                    <button onClick={onBack} className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors backdrop-blur-sm mb-4">
+                        <ChevronLeft className="w-6 h-6" />
+                    </button>
+
+                    <div className="text-center">
+                        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                            <MessageSquare className="w-8 h-8" />
+                        </div>
+                        <h1 className="text-2xl font-extrabold mb-1">Simulador de Entrevista</h1>
+                        <p className="text-purple-100 text-sm">Pratique com IA e receba feedback detalhado</p>
+
+                        {gameState !== 'intro' && gameState !== 'finished' && (
+                            <div className="mt-4 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                                <Sparkles className="w-4 h-4" />
+                                <span className="text-sm font-bold">Pergunta {currentQuestionIndex + 1}/5</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col p-4 max-w-lg mx-auto w-full relative overflow-y-auto pb-24">
+            <div className="px-6 -mt-6 max-w-2xl mx-auto relative z-20">
 
                 {/* INTRO STATE */}
                 {gameState === 'intro' && (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 animate-fadeIn">
-                        <div className="relative">
-                            <div className="w-32 h-32 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(124,58,237,0.4)]">
-                                <Mic className="w-14 h-14 text-white" />
-                            </div>
-                            <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full border-2 border-[#0f172a]">
-                                Beta
-                            </div>
+                    <div className="space-y-4 animate-fadeIn">
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-purple-100">
+                            <h2 className="text-xl font-bold text-slate-900 mb-3">Como Funciona</h2>
+                            <ul className="space-y-3 text-slate-700">
+                                <li className="flex items-start gap-3">
+                                    <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <span className="text-purple-600 text-sm font-bold">1</span>
+                                    </div>
+                                    <span>Responda <span className="font-bold">5 perguntas</span> de entrevista</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <span className="text-purple-600 text-sm font-bold">2</span>
+                                    </div>
+                                    <span>Você tem <span className="font-bold">3 minutos</span> para cada resposta</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <span className="text-purple-600 text-sm font-bold">3</span>
+                                    </div>
+                                    <span>A IA avalia sua resposta com <span className="font-bold">feedback detalhado</span></span>
+                                </li>
+                            </ul>
                         </div>
 
-                        <div>
-                            <h2 className="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                                Entrevista Realista
-                            </h2>
-                            <p className="text-slate-400 leading-relaxed max-w-xs mx-auto">
-                                Vou fazer 5 perguntas sobre <span className="text-white font-bold">{userProfile.role}</span>.
-                                Você terá 3 minutos para responder cada uma.
+                        <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-200">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Sparkles className="w-5 h-5 text-amber-600" />
+                                <h3 className="font-bold text-amber-900">Dica Pro</h3>
+                            </div>
+                            <p className="text-sm text-amber-800 leading-relaxed">
+                                Use o método <span className="font-bold">STAR</span>: Situação, Tarefa, Ação, Resultado.
+                                Seja específico e dê exemplos reais da sua experiência.
                             </p>
                         </div>
 
-                        <div className="w-full space-y-3">
-                            <button
-                                onClick={nextQuestion}
-                                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-500/20 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3"
-                            >
-                                <Play className="w-5 h-5 fill-current" />
-                                Começar Agora
-                            </button>
-
-                            <button
-                                onClick={() => { setUseTextMode(true); nextQuestion(); }}
-                                className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
-                            >
-                                Prefiro usar apenas texto
-                            </button>
-                        </div>
+                        <button
+                            onClick={nextQuestion}
+                            className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-2xl shadow-lg shadow-purple-500/50 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                            Iniciar Simulação
+                        </button>
                     </div>
                 )}
 
-                {/* ACTIVE INTERVIEW STATES */}
-                {(gameState === 'generating' || gameState === 'speaking_question' || gameState === 'listening' || gameState === 'processing' || gameState === 'feedback') && (
-                    <div className="space-y-6">
+                {/* GENERATING STATE */}
+                {gameState === 'generating' && (
+                    <div className="bg-white rounded-2xl p-12 shadow-lg border border-purple-100 text-center animate-fadeIn">
+                        <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-spin">
+                            <Sparkles className="w-8 h-8 text-white" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-900 mb-2">Gerando pergunta...</h3>
+                        <p className="text-slate-600 text-sm">Preparando uma questão personalizada para você</p>
+                    </div>
+                )}
 
-                        {/* Chat Interface */}
-                        <div className="space-y-6">
-                            {/* AI Message (Question) */}
-                            <div className="flex gap-3 animate-slideInLeft">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex-shrink-0 flex items-center justify-center">
-                                    <Volume2 className={`w-5 h-5 text-white ${gameState === 'speaking_question' ? 'animate-pulse' : ''}`} />
-                                </div>
-                                <div className="flex-1 space-y-2">
-                                    <div className="bg-[#1e293b] p-4 rounded-2xl rounded-tl-none border border-slate-700 shadow-sm">
-                                        {gameState === 'generating' ? (
-                                            <div className="flex gap-1">
-                                                <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                                <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                                                <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                                            </div>
-                                        ) : (
-                                            <p className="text-slate-200 leading-relaxed">{currentQuestion}</p>
-                                        )}
-                                    </div>
-                                    {gameState === 'listening' && (
-                                        <div className="flex items-center gap-2 text-xs text-slate-500 pl-1">
-                                            <Clock className="w-3 h-3" />
-                                            <span className={`${timeLeft < 30 ? 'text-red-400 font-bold' : ''}`}>
-                                                {formatTime(timeLeft)} restantes
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
+                {/* LISTENING STATE */}
+                {gameState === 'listening' && (
+                    <div className="space-y-4 animate-fadeIn">
+                        {/* Question Card */}
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-indigo-100">
+                            <div className="flex items-center gap-2 mb-4">
+                                <MessageSquare className="w-5 h-5 text-indigo-600" />
+                                <h3 className="font-bold text-indigo-900">Pergunta</h3>
                             </div>
-
-                            {/* User Message (Answer) */}
-                            {(userAnswer || isListening) && (
-                                <div className="flex gap-3 flex-row-reverse animate-slideInRight">
-                                    <div className="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center">
-                                        <UserIcon />
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="bg-emerald-600/20 p-4 rounded-2xl rounded-tr-none border border-emerald-500/30 text-right">
-                                            <p className="text-white leading-relaxed">
-                                                {userAnswer}
-                                                {isListening && <span className="inline-block w-1 h-4 bg-emerald-400 ml-1 animate-pulse align-middle"></span>}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Feedback Message */}
-                            {gameState === 'feedback' && currentFeedback && (
-                                <div className="flex gap-3 animate-fadeIn">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex-shrink-0 flex items-center justify-center">
-                                        <Star className="w-5 h-5 text-white" />
-                                    </div>
-                                    <div className="flex-1 space-y-3">
-                                        <div className="bg-[#1e293b] p-5 rounded-2xl rounded-tl-none border border-slate-700 shadow-lg">
-                                            <div className="flex items-center justify-between mb-3 border-b border-slate-700 pb-3">
-                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Avaliação</span>
-                                                <div className="flex items-center gap-1 bg-indigo-500/20 px-2 py-1 rounded-lg border border-indigo-500/30">
-                                                    <span className="text-indigo-400 font-bold text-sm">{currentFeedback.score}/10</span>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-3">
-                                                <div>
-                                                    <p className="text-emerald-400 text-xs font-bold mb-1 flex items-center gap-1">
-                                                        <CheckCircle className="w-3 h-3" /> Mandou bem
-                                                    </p>
-                                                    <p className="text-slate-300 text-sm">{currentFeedback.feedback}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-orange-400 text-xs font-bold mb-1 flex items-center gap-1">
-                                                        <AlertCircle className="w-3 h-3" /> Dica de Mestre
-                                                    </p>
-                                                    <p className="text-slate-300 text-sm">{currentFeedback.improvement}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            onClick={handleContinue}
-                                            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl shadow-lg transition-all"
-                                        >
-                                            {currentQuestionIndex < 4 ? 'Próxima Pergunta' : 'Ver Resultado Final'}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                            <p className="text-lg text-slate-800 leading-relaxed">{currentQuestion}</p>
                         </div>
 
-                        {/* Controls Area (Fixed Bottom) */}
-                        {gameState === 'listening' && (
-                            <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0f172a]/90 backdrop-blur-lg border-t border-slate-800 z-30">
-                                <div className="max-w-lg mx-auto flex items-center gap-4">
-                                    {!useTextMode ? (
-                                        <>
-                                            <button
-                                                onClick={isListening ? stopListening : startListening}
-                                                className={`flex-1 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${isListening
-                                                        ? 'bg-red-500/20 text-red-500 border border-red-500/50 animate-pulse'
-                                                        : 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20'
-                                                    }`}
-                                            >
-                                                {isListening ? (
-                                                    <><Square className="w-5 h-5 fill-current" /> Parar</>
-                                                ) : (
-                                                    <><Mic className="w-5 h-5" /> Falar</>
-                                                )}
-                                            </button>
+                        {/* Timer */}
+                        <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl p-4 border border-purple-200">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Clock className="w-5 h-5 text-purple-600" />
+                                    <span className="font-bold text-purple-900">Tempo restante</span>
+                                </div>
+                                <span className={`text-2xl font-bold ${timeLeft < 30 ? 'text-red-600 animate-pulse' : 'text-purple-900'}`}>
+                                    {formatTime(timeLeft)}
+                                </span>
+                            </div>
+                        </div>
 
-                                            {userAnswer && !isListening && (
-                                                <button
-                                                    onClick={submitAnswer}
-                                                    className="w-14 h-14 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg"
-                                                >
-                                                    <Send className="w-6 h-6" />
-                                                </button>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <div className="flex-1 flex gap-2">
-                                            <input
-                                                type="text"
-                                                value={userAnswer}
-                                                onChange={(e) => setUserAnswer(e.target.value)}
-                                                placeholder="Digite sua resposta..."
-                                                className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 text-white focus:border-indigo-500 outline-none"
-                                                onKeyDown={(e) => e.key === 'Enter' && submitAnswer()}
-                                            />
-                                            <button
-                                                onClick={submitAnswer}
-                                                className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white"
-                                            >
-                                                <Send className="w-5 h-5" />
-                                            </button>
+                        {/* Answer Area */}
+                        {!useTextMode ? (
+                            <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
+                                <div className="text-center mb-4">
+                                    <button
+                                        onClick={isRecording ? stopListening : startListening}
+                                        disabled={isListening && !isRecording}
+                                        className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto shadow-2xl transition-all transform ${isRecording
+                                            ? 'bg-gradient-to-br from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 scale-110 animate-pulse'
+                                            : 'bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 hover:scale-105'
+                                            } active:scale-95`}
+                                    >
+                                        {isRecording ? (
+                                            <MicOff className="w-10 h-10 text-white" />
+                                        ) : (
+                                            <Mic className="w-10 h-10 text-white" />
+                                        )}
+                                    </button>
+                                    <p className="mt-4 text-sm font-medium text-slate-700">
+                                        {isRecording ? 'Gravando... Clique para pausar' : 'Clique para gravar sua resposta'}
+                                    </p>
+                                    {isRecording && (
+                                        <div className="flex items-center justify-center gap-1 mt-2">
+                                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
+                                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
                                         </div>
                                     )}
                                 </div>
+
+                                {userAnswer && (
+                                    <div className="bg-slate-50 rounded-xl p-4 mb-4">
+                                        <p className="text-slate-700 leading-relaxed">{userAnswer}</p>
+                                    </div>
+                                )}
+
+                                {errorMsg && (
+                                    <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-4">
+                                        <p className="text-red-700 text-sm">{errorMsg}</p>
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={() => setUseTextMode(true)}
+                                    className="w-full py-2 text-sm text-purple-600 hover:text-purple-700 font-medium"
+                                >
+                                    Prefiro digitar minha resposta
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
+                                <textarea
+                                    value={userAnswer}
+                                    onChange={(e) => setUserAnswer(e.target.value)}
+                                    placeholder="Digite sua resposta aqui..."
+                                    className="w-full h-40 p-4 border-2 border-slate-200 rounded-xl resize-none focus:outline-none focus:border-purple-500 transition-colors"
+                                />
                             </div>
                         )}
+
+                        {/* Submit Button */}
+                        <button
+                            onClick={submitAnswer}
+                            disabled={!userAnswer.trim()}
+                            className={`w-full py-4 rounded-2xl font-bold shadow-lg transition-all flex items-center justify-center gap-2 ${userAnswer.trim()
+                                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-emerald-500/50 transform hover:scale-[1.02] active:scale-[0.98]'
+                                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                }`}
+                        >
+                            <Send className="w-5 h-5" />
+                            Enviar Resposta
+                        </button>
+                    </div>
+                )}
+
+                {/* PROCESSING STATE */}
+                {gameState === 'processing' && (
+                    <div className="bg-white rounded-2xl p-12 shadow-lg border border-purple-100 text-center animate-fadeIn">
+                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Sparkles className="w-8 h-8 text-white animate-spin" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-900 mb-2">Analisando sua resposta...</h3>
+                        <p className="text-slate-600 text-sm">A IA está avaliando conteúdo, clareza e profundidade</p>
+                    </div>
+                )}
+
+                {/* FEEDBACK STATE */}
+                {gameState === 'feedback' && currentFeedback && (
+                    <div className="space-y-4 animate-fadeIn">
+                        {/* Score Card */}
+                        <div className={`bg-gradient-to-br ${getScoreColor(currentFeedback.score)} rounded-2xl p-6 shadow-xl text-white`}>
+                            <div className="text-center">
+                                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-4">
+                                    <Star className="w-5 h-5" />
+                                    <span className="font-bold">{getScoreLabel(currentFeedback.score)}</span>
+                                </div>
+                                <div className="text-6xl font-extrabold mb-2">{currentFeedback.score.toFixed(1)}</div>
+                                <p className="text-white/90 text-sm">de 10.0 pontos</p>
+                            </div>
+                        </div>
+
+                        {/* Feedback */}
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-emerald-100">
+                            <div className="flex items-center gap-2 mb-3">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                                <h3 className="font-bold text-emerald-900">O que você fez bem</h3>
+                            </div>
+                            <p className="text-slate-700 leading-relaxed">{currentFeedback.feedback}</p>
+                        </div>
+
+                        {/* Improvement */}
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-blue-100">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Sparkles className="w-5 h-5 text-blue-600" />
+                                <h3 className="font-bold text-blue-900">Como melhorar</h3>
+                            </div>
+                            <p className="text-slate-700 leading-relaxed">{currentFeedback.improvement}</p>
+                        </div>
+
+                        {/* Continue Button */}
+                        <button
+                            onClick={handleContinue}
+                            className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-2xl shadow-lg shadow-purple-500/50 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                            {currentQuestionIndex + 1 < 5 ? 'Próxima Pergunta' : 'Ver Resultado Final'}
+                        </button>
                     </div>
                 )}
 
                 {/* FINISHED STATE */}
                 {gameState === 'finished' && (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 animate-fadeIn">
-                        <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4">
-                            <Trophy className="w-12 h-12 text-emerald-400" />
-                        </div>
-
-                        <div>
-                            <h2 className="text-3xl font-bold text-white mb-2">Entrevista Concluída!</h2>
-                            <p className="text-slate-400">Você praticou 5 perguntas essenciais.</p>
-                        </div>
-
-                        <div className="w-full bg-[#1e293b] rounded-2xl border border-slate-700 p-6">
-                            <div className="text-sm text-slate-400 mb-4 uppercase tracking-wider font-bold">Média Final</div>
-                            <div className="text-5xl font-extrabold text-white mb-2">
-                                {(interactions.reduce((acc, curr) => acc + (curr.feedback?.score || 0), 0) / 5).toFixed(1)}
+                    <div className="space-y-4 animate-fadeIn">
+                        <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 rounded-2xl p-8 shadow-xl text-white text-center">
+                            <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                <Trophy className="w-10 h-10" />
                             </div>
-                            <div className="flex justify-center gap-1">
-                                {[1, 2, 3, 4, 5].map(i => (
-                                    <Star key={i} className="w-4 h-4 text-yellow-500 fill-current" />
+                            <h2 className="text-2xl font-extrabold mb-2">Simulação Concluída!</h2>
+                            <p className="text-purple-100 mb-4">Você respondeu todas as 5 perguntas</p>
+                            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 inline-block">
+                                <p className="text-sm text-purple-100 mb-1">Pontuação Média</p>
+                                <p className="text-4xl font-extrabold">{avgScore}</p>
+                            </div>
+                        </div>
+
+                        {/* Individual Scores */}
+                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-purple-100">
+                            <h3 className="font-bold text-slate-900 mb-4">Resumo das Perguntas</h3>
+                            <div className="space-y-3">
+                                {interactions.map((interaction, idx) => (
+                                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-slate-700">Pergunta {idx + 1}</p>
+                                            <p className="text-xs text-slate-500 line-clamp-1">{interaction.question}</p>
+                                        </div>
+                                        <div className={`px-3 py-1 rounded-full bg-gradient-to-r ${getScoreColor(interaction.feedback?.score || 0)} text-white font-bold text-sm`}>
+                                            {interaction.feedback?.score.toFixed(1)}
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         </div>
 
-                        <button
-                            onClick={onBack}
-                            className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-2xl transition-colors"
-                        >
-                            Voltar ao Menu
-                        </button>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => {
+                                    setGameState('intro');
+                                    setCurrentQuestionIndex(0);
+                                    setInteractions([]);
+                                    setUserAnswer('');
+                                    setCurrentFeedback(null);
+                                }}
+                                className="flex-1 py-4 bg-white hover:bg-slate-50 text-purple-600 font-bold rounded-2xl shadow-lg border-2 border-purple-600 transition-all"
+                            >
+                                <RefreshCw className="w-5 h-5 inline mr-2" />
+                                Tentar Novamente
+                            </button>
+                            <button
+                                onClick={onBack}
+                                className="flex-1 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-2xl shadow-lg shadow-purple-500/50 transition-all"
+                            >
+                                Concluir
+                            </button>
+                        </div>
                     </div>
                 )}
-
             </div>
-        </div>
+        </div >
     );
 };
-
-// Simple User Icon Component
-const UserIcon = () => (
-    <svg className="w-6 h-6 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-    </svg>
-);
-
-const Trophy = ({ className }: { className?: string }) => (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-    </svg>
-);

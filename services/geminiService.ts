@@ -645,17 +645,45 @@ export const generateInterviewQuestion = async (role: string, topic: string): Pr
 export const evaluateInterviewAnswer = async (question: string, answer: string): Promise<{ score: number, feedback: string, improvement: string }> => {
   const model = "gemini-2.5-flash";
   const prompt = `
-    You are an expert interview coach.
-    Question: "${question}"
-    Candidate Answer (Spoken): "${answer}"
-
-    Evaluate the answer based on clarity, relevance, and confidence.
+    Você é um especialista em entrevistas técnicas e comportamentais com 20+ anos de experiência avaliando candidatos.
     
-    Return JSON (PT-BR):
+    PERGUNTA DA ENTREVISTA: "${question}"
+    RESPOSTA DO CANDIDATO: "${answer}"
+
+    CRITÉRIOS DE AVALIAÇÃO (0-10):
+    
+    1. CONTEÚDO E RELEVÂNCIA (0-3 pontos):
+       - A resposta aborda diretamente a pergunta?
+       - Inclui exemplos concretos ou situações reais?
+       - Demonstra conhecimento apropriado do tema?
+    
+    2. ESTRUTURA E CLAREZA (0-2 pontos):
+       - A resposta é bem organizada e fácil de seguir?
+       - Usa método STAR (Situação, Tarefa, Ação, Resultado) quando aplicável?
+       - Evita divagações ou informações irrelevantes?
+    
+    3. PROFUNDIDADE E INSIGHT (0-3 pontos):
+       - Mostra pensamento crítico e reflexão?
+       - Menciona lições aprendidas ou crescimento pessoal?
+       - Vai além do óbvio, demonstrando expertise?
+    
+    4. COMUNICAÇÃO (0-2 pontos):
+       - A linguagem é profissional e confiante?
+       - Evita vícios de linguagem ou hesitações excessivas?
+       - Transmite entusiasmo e autenticidade?
+
+    INSTRUÇÕES DE PONTUAÇÃO:
+    - 9-10: Resposta excepcional, poderia ser usada como exemplo
+    - 7-8: Resposta boa, com apenas melhorias menores necessárias
+    - 5-6: Resposta adequada mas genérica, precisa de mais profundidade
+    - 3-4: Resposta fraca, falta conteúdo ou estrutura
+    - 0-2: Resposta inadequada ou sem resposta
+
+    Retorne JSON em PT-BR com análise detalhada:
     {
       "score": 0-10,
-      "feedback": "One sentence on what was good.",
-      "improvement": "One specific tip to improve this answer."
+      "feedback": "2-3 frases descrevendo especificamente o que foi MUITO BOM na resposta. Seja encorajador mas honesto. Mencione pontos fortes concretos que você observou.",
+      "improvement": "2-3 frases com dicas ACIONÁVEIS e ESPECÍFICAS para melhorar. Se a nota foi baixa, explique exatamente o que estava faltando. Se foi alta, sugira como elevar ainda mais o nível. Seja construtivo e didático."
     }
   `;
 
