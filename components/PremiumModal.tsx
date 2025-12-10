@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
-import { X, Check, Crown, FileText, BrainCircuit, MessageSquare, Mic, DollarSign, Video, Star, Loader2 } from 'lucide-react';
+import { X, Check, Crown, FileText, BrainCircuit, MessageSquare, Mic, DollarSign, Video, Star, Loader2, Clock, Gift } from 'lucide-react';
 
 interface PremiumModalProps {
     onClose: () => void;
-    onUpgrade: () => void; // Mantido para atualizar estado local se necessário, ou fallback
+    onUpgrade: () => void;
     userId?: string;
     userEmail?: string;
+    isTrialActive?: boolean;
+    trialEndsAt?: Date | null;
 }
 
-export const PremiumModal: React.FC<PremiumModalProps> = ({ onClose, onUpgrade, userId, userEmail }) => {
+export const PremiumModal: React.FC<PremiumModalProps> = ({ onClose, onUpgrade, userId, userEmail, isTrialActive, trialEndsAt }) => {
     const [loading, setLoading] = useState(false);
+
+    // Calculate remaining trial days
+    const getTrialDaysRemaining = () => {
+        if (!trialEndsAt) return 0;
+        const now = new Date();
+        const diff = trialEndsAt.getTime() - now.getTime();
+        return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+    };
+
+    const trialDaysRemaining = getTrialDaysRemaining();
 
     const handleSubscribe = async () => {
         if (!userId || !userEmail) {
@@ -67,6 +79,23 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({ onClose, onUpgrade, 
                             DESBLOQUEIE SEU POTENCIAL MÁXIMO
                         </p>
                     </div>
+
+                    {/* Trial Banner */}
+                    {isTrialActive && trialDaysRemaining > 0 && (
+                        <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
+                                    <Gift className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                    <h3 className="text-emerald-400 font-bold text-sm">🎉 Trial Gratuito Ativo!</h3>
+                                    <p className="text-emerald-300/80 text-xs">
+                                        Você tem <span className="font-bold">{trialDaysRemaining} dia{trialDaysRemaining !== 1 ? 's' : ''}</span> restantes de acesso completo.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Features List */}
                     <div className="space-y-4 mb-8">

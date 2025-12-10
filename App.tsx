@@ -1789,6 +1789,8 @@ const App: React.FC = () => {
     // Feature States
     const [discResult, setDiscResult] = useState<DiscResult | null>(null);
     const [isPremium, setIsPremium] = useState(false);
+    const [isTrialActive, setIsTrialActive] = useState(false);
+    const [trialEndsAt, setTrialEndsAt] = useState<Date | null>(null);
 
     // Modals
     const [showPremiumModal, setShowPremiumModal] = useState(false);
@@ -1818,6 +1820,20 @@ const App: React.FC = () => {
                     id: session.user.id,
                     email: session.user.email || ''
                 });
+
+                // Check 2-day free trial based on account creation
+                const createdAt = new Date(session.user.created_at);
+                const trialEnd = new Date(createdAt.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 days
+                const now = new Date();
+                const isInTrial = now < trialEnd;
+                setIsTrialActive(isInTrial);
+                setTrialEndsAt(trialEnd);
+
+                // Give premium access during trial OR if they have a subscription
+                if (isInTrial) {
+                    setIsPremium(true);
+                }
+
                 const { data: profile } = await supabase
                     .from('user_profiles')
                     .select('*')
@@ -1825,6 +1841,11 @@ const App: React.FC = () => {
                     .single();
 
                 if (profile) {
+                    // Check if user has active Stripe subscription
+                    if (profile.stripe_subscription_status === 'active') {
+                        setIsPremium(true);
+                    }
+
                     setUserProfile(prev => ({
                         ...prev,
                         name: profile.name || prev.name,
@@ -2205,6 +2226,8 @@ const App: React.FC = () => {
                 <PremiumModal
                     userId={sessionUser?.id}
                     userEmail={sessionUser?.email}
+                    isTrialActive={isTrialActive}
+                    trialEndsAt={trialEndsAt}
                     onClose={() => setShowPremiumModal(false)}
                     onUpgrade={() => {
                         setIsPremium(true);
