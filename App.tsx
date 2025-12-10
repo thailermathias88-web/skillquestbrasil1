@@ -14,6 +14,9 @@ import { SoftSkillsDashboard } from './components/SoftSkillsDashboard';
 import { SoftSkillsDayDetail } from './components/SoftSkillsDayDetail';
 import { saveUserProfile } from './services/adminService';
 import { supabase } from './services/supabase';
+import { PremiumUpgrade } from './components/PremiumUpgrade';
+import { PaymentSuccess } from './components/PaymentSuccess';
+import { PaymentCanceled } from './components/PaymentCanceled';
 import {
     Home, Briefcase, GraduationCap, MessageSquare, User,
     ArrowRight, Upload, FileText, Check, Lock, ChevronRight,
@@ -44,7 +47,9 @@ enum Screen {
     SIMULATOR = 'SIMULATOR',
     SOFT_SKILLS_INTRO = 'SOFT_SKILLS_INTRO',
     SOFT_SKILLS_DASHBOARD = 'SOFT_SKILLS_DASHBOARD',
-    SOFT_SKILLS_DAY = 'SOFT_SKILLS_DAY'
+    SOFT_SKILLS_DAY = 'SOFT_SKILLS_DAY',
+    PAYMENT_SUCCESS = 'PAYMENT_SUCCESS',
+    PAYMENT_CANCELED = 'PAYMENT_CANCELED'
 }
 
 // --- SHARED COMPONENTS ---
@@ -486,10 +491,10 @@ const MentorshipScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     ];
 
     const schedule = [
-        { day: "10", month: "OUT", time: "19:00", mentor: "Luciene Silva", title: "Inteligência Social no Corporativo", type: "Comportamento" },
-        { day: "24", month: "OUT", time: "19:00", mentor: "Thailer Mathias", title: "Dominando KPIs e Métricas", type: "Gestão" },
-        { day: "07", month: "NOV", time: "19:00", mentor: "Luciene Silva", title: "Máquina de Vendas & Atendimento", type: "Vendas" },
-        { day: "21", month: "NOV", time: "19:00", mentor: "Thailer Mathias", title: "IA e Finanças na Prática", type: "Tech" },
+        { day: "15", month: "JAN", time: "19:00", mentor: "Luciene Silva", title: "Inteligência Social no Corporativo", type: "Comportamento" },
+        { day: "29", month: "JAN", time: "19:00", mentor: "Thailer Mathias", title: "Dominando KPIs e Métricas", type: "Gestão" },
+        { day: "12", month: "FEV", time: "19:00", mentor: "Luciene Silva", title: "Máquina de Vendas & Atendimento", type: "Vendas" },
+        { day: "26", month: "FEV", time: "19:00", mentor: "Thailer Mathias", title: "IA e Finanças na Prática", type: "Tech" },
     ];
 
     return (
@@ -548,7 +553,7 @@ const MentorshipScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     <div className="space-y-4">
                         {schedule.map((s, i) => (
                             <div key={i} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex gap-4 relative overflow-hidden">
-                                {i === 0 && <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">PRÃ“XIMA</div>}
+                                {i === 0 && <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">PRÓXIMA</div>}
 
                                 <div className="flex flex-col items-center justify-center bg-slate-50 rounded-xl px-4 py-2 min-w-[70px]">
                                     <span className="text-xl font-bold text-slate-900">{s.day}</span>
@@ -1791,6 +1796,9 @@ const App: React.FC = () => {
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    // Session State for Payments
+    const [sessionUser, setSessionUser] = useState<{ id: string, email: string } | null>(null);
+
     // Soft Skills Coaching State
     const [selectedDay, setSelectedDay] = useState<number>(1);
     const [coachingProgress, setCoachingProgress] = useState<import('./types').SoftSkillsProgress>({
@@ -1806,6 +1814,10 @@ const App: React.FC = () => {
         try {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
+                setSessionUser({
+                    id: session.user.id,
+                    email: session.user.email || ''
+                });
                 const { data: profile } = await supabase
                     .from('user_profiles')
                     .select('*')
@@ -1862,6 +1874,18 @@ const App: React.FC = () => {
 
     useEffect(() => {
         checkSession();
+
+        // Check for Stripe Redirects
+        const query = new URLSearchParams(window.location.search);
+        if (query.get('success')) {
+            setScreen(Screen.PAYMENT_SUCCESS);
+            // Optional: Clean URL
+            window.history.replaceState({}, document.title, "/");
+        }
+        if (query.get('canceled')) {
+            setScreen(Screen.PAYMENT_CANCELED);
+            window.history.replaceState({}, document.title, "/");
+        }
 
         // Listen for auth changes (e.g. Google Login redirect)
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -2179,6 +2203,8 @@ const App: React.FC = () => {
 
             {showPremiumModal && (
                 <PremiumModal
+                    userId={sessionUser?.id}
+                    userEmail={sessionUser?.email}
                     onClose={() => setShowPremiumModal(false)}
                     onUpgrade={() => {
                         setIsPremium(true);
@@ -2194,6 +2220,24 @@ const App: React.FC = () => {
                     isPremium={isPremium}
                     onUpgrade={() => {
                         setShowUserMenu(false);
+                        setShowPremiumModal(true);
+                    }}
+                />
+            )}
+
+            {currentScreen === Screen.PAYMENT_SUCCESS && (
+                <PaymentSuccess
+                    onContinue={() => {
+                        setIsPremium(true);
+                        setScreen(Screen.DASHBOARD);
+                    }}
+                />
+            )}
+
+            {currentScreen === Screen.PAYMENT_CANCELED && (
+                <PaymentCanceled
+                    onRetry={() => {
+                        setScreen(Screen.DASHBOARD);
                         setShowPremiumModal(true);
                     }}
                 />
@@ -2225,6 +2269,13 @@ const App: React.FC = () => {
                                         avatar_base64: updatedProfile.avatarBase64,
                                         avatar_mime_type: updatedProfile.avatarMimeType,
                                         social_links: updatedProfile.socialLinks,
+                                        whatsapp: updatedProfile.whatsapp,
+                                        rg: updatedProfile.rg,
+                                        rg_issue_date: updatedProfile.rgIssueDate,
+                                        cpf: updatedProfile.cpf,
+                                        birth_date: updatedProfile.birthDate,
+                                        mother_name: updatedProfile.motherName,
+                                        father_name: updatedProfile.fatherName,
                                         updated_at: new Date().toISOString()
                                     }, { onConflict: 'user_id' });
                             }

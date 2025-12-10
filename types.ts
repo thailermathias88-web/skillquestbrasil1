@@ -9,6 +9,12 @@ export interface UserProfile {
   name?: string;
   email?: string;
   whatsapp?: string;
+  rg?: string;
+  rgIssueDate?: string;
+  cpf?: string;
+  birthDate?: string;
+  motherName?: string;
+  fatherName?: string;
   role: string;
   experience: string;
   city?: string;

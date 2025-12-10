@@ -166,6 +166,97 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </div>
 
             <div className="px-4 space-y-5">
+                {/* Seção Dados Pessoais */}
+                <div>
+                    <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <Users className="w-5 h-5 text-indigo-600" />
+                        Dados Pessoais
+                    </h2>
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 space-y-4">
+                        {/* WhatsApp */}
+                        <div>
+                            <label className="text-xs font-bold text-slate-500 uppercase block mb-1">WhatsApp</label>
+                            <input
+                                type="text"
+                                value={userProfile.whatsapp || ''}
+                                onChange={(e) => onUpdateProfile({ ...userProfile, whatsapp: e.target.value })}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                placeholder="(00) 00000-0000"
+                            />
+                        </div>
+
+                        {/* CPF e RG */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase block mb-1">CPF</label>
+                                <input
+                                    type="text"
+                                    value={userProfile.cpf || ''}
+                                    onChange={(e) => onUpdateProfile({ ...userProfile, cpf: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                    placeholder="000.000.000-00"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase block mb-1">RG</label>
+                                <input
+                                    type="text"
+                                    value={userProfile.rg || ''}
+                                    onChange={(e) => onUpdateProfile({ ...userProfile, rg: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                    placeholder="Número"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Datas */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase block mb-1">Emissão RG</label>
+                                <input
+                                    type="date"
+                                    value={userProfile.rgIssueDate || ''}
+                                    onChange={(e) => onUpdateProfile({ ...userProfile, rgIssueDate: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase block mb-1">Data Nasc.</label>
+                                <input
+                                    type="date"
+                                    value={userProfile.birthDate || ''}
+                                    onChange={(e) => onUpdateProfile({ ...userProfile, birthDate: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Filiação */}
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase block mb-1">Nome da Mãe</label>
+                                <input
+                                    type="text"
+                                    value={userProfile.motherName || ''}
+                                    onChange={(e) => onUpdateProfile({ ...userProfile, motherName: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                    placeholder="Nome completo da mãe"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase block mb-1">Nome do Pai</label>
+                                <input
+                                    type="text"
+                                    value={userProfile.fatherName || ''}
+                                    onChange={(e) => onUpdateProfile({ ...userProfile, fatherName: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                    placeholder="Nome completo do pai"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Seção Minha Carreira */}
                 <div>
                     <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
