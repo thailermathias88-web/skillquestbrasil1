@@ -1821,17 +1821,29 @@ const App: React.FC = () => {
                     email: session.user.email || ''
                 });
 
-                // Check 2-day free trial based on account creation
-                const createdAt = new Date(session.user.created_at);
-                const trialEnd = new Date(createdAt.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 days
-                const now = new Date();
-                const isInTrial = now < trialEnd;
-                setIsTrialActive(isInTrial);
-                setTrialEndsAt(trialEnd);
+                // VIP emails - permanent premium access (admin & demo accounts)
+                const VIP_EMAILS = [
+                    'thailer.mathias88@gmail.com',
+                    'luciene.gestaodepessoas@gmail.com'
+                ];
+                const isVIP = VIP_EMAILS.includes(session.user.email?.toLowerCase() || '');
 
-                // Give premium access during trial OR if they have a subscription
-                if (isInTrial) {
+                if (isVIP) {
                     setIsPremium(true);
+                    setIsTrialActive(false); // VIPs don't need trial
+                } else {
+                    // Check 2-day free trial based on account creation
+                    const createdAt = new Date(session.user.created_at);
+                    const trialEnd = new Date(createdAt.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 days
+                    const now = new Date();
+                    const isInTrial = now < trialEnd;
+                    setIsTrialActive(isInTrial);
+                    setTrialEndsAt(trialEnd);
+
+                    // Give premium access during trial
+                    if (isInTrial) {
+                        setIsPremium(true);
+                    }
                 }
 
                 const { data: profile } = await supabase
