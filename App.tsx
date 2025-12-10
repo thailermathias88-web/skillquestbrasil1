@@ -2022,6 +2022,11 @@ const App: React.FC = () => {
 
     return (
         <div className="font-sans text-slate-900 bg-slate-50 min-h-screen">
+            {/* DEBUG BANNER - REMOVE AFTER VERIFICATION */}
+            <div className="fixed top-0 left-0 right-0 z-[100] bg-red-600 text-white text-center py-2 font-bold text-xs shadow-xl animate-pulse">
+                VERSÃO DE DEBUG: v0.1.0 - ATUALIZAÇÃO JAN/FEV ATIVA 🚀
+            </div>
+
             {isLoading && <LoadingOverlay />}
 
             {currentScreen === Screen.LANDING && (
